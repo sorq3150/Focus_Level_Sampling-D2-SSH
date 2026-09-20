@@ -190,7 +190,7 @@ dialog::backdrop{background:rgba(10,12,30,.5)}
 
 <header class="hero">
   <div class="wrap">
-    <h1 id="siteTitle">集中度記録サイト</h1>
+    <h1>集中度記録サイト</h1>
     <p class="lead">Excelをアップロードすると、タイム・ミス・修正から「集中度指数」を計算し、グラフと数値で確認できます。計算の途中経過もすべて見られます。</p>
     <p class="tag">高校の研究用に設定した独自指標です（医学的・心理学的に確立された尺度ではありません）</p>
   </div>
@@ -212,10 +212,9 @@ dialog::backdrop{background:rgba(10,12,30,.5)}
 
 <section id="upload">
   <div class="card">
-    <h2>履歴の名前</h2>
-    <label for="expName">履歴の名前を入力してください</label><br>
+    <h2>研究の名前</h2>
+    <label for="expName">研究の名前を入力してください</label><br>
     <input type="text" id="expName" maxlength="40" placeholder="例：実験1" autocomplete="off" style="width:min(100%,360px);margin-top:6px">
-    <p class="hint" style="margin-top:8px">入力した名前が、このサイトの名前（画面の一番上）になり、画像の見出しにも入ります：「（履歴の名前）の集中度記録サイト」。空のままなら「集中度記録サイト」です。履歴に保存するときの名前にもなります。</p>
   </div>
   <div class="card">
     <h2>Excelファイルを読み込む</h2>
@@ -350,7 +349,7 @@ dialog::backdrop{background:rgba(10,12,30,.5)}
     <div id="histNotice"></div>
     <div id="saveBox" hidden>
       <div class="row">
-        <div><label for="expName2">履歴の名前</label><br><input type="text" id="expName2" maxlength="40" placeholder="例：実験1" autocomplete="off"></div>
+        <div><label for="expName2">研究の名前</label><br><input type="text" id="expName2" maxlength="40" placeholder="例：実験1" autocomplete="off"></div>
         <div><label for="expDate">日付</label><br><input type="date" id="expDate"></div>
         <div style="align-self:flex-end"><button class="btn primary" id="saveHist" type="button">履歴に保存</button></div>
       </div>
@@ -1084,17 +1083,16 @@ const state = {
   table: { key: 'id', dir: 1, q: '' }
 };
 
-/* ================= サイトの名前：「（履歴の名前）の集中度記録サイト」 ================= */
-// 履歴の名前が未入力（空・空白だけ）のときは「集中度記録サイト」
+/* ================= ページの名前：「（研究の名前）の集中度記録サイト」 ================= */
+// ブラウザのタブの題名と画像の右上に使う。研究の名前が未入力（空・空白だけ）のときは「集中度記録サイト」
+// （ページ一番上のタイトルは「集中度記録サイト」で固定）
 const DEFAULT_SITE_NAME = '集中度記録サイト';
 const siteName = () => { const n = (state.expName || '').trim(); return n ? `${n}の${DEFAULT_SITE_NAME}` : DEFAULT_SITE_NAME; };
-// 2つの入力欄（上の欄・履歴の欄）と、見出し・タブの題名を、いまの履歴の名前にそろえる
+// 2つの入力欄（上の欄・履歴の欄）と、タブの題名を、いまの研究の名前にそろえる
 function syncNameInputs() {
   ['expName', 'expName2'].forEach(id => { const el = $(id); if (el && document.activeElement !== el) el.value = state.expName || ''; });
   const t = siteName();
   document.title = t;
-  const h = $('siteTitle');
-  if (h) h.textContent = t;
 }
 function setExpName(v) {
   state.expName = String(v == null ? '' : v);
@@ -1295,7 +1293,7 @@ function updateSheetPick() {
   $('sheetPick').hidden = !show;
   if (show) { $('sheetSel').innerHTML = s.wb.SheetNames.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join(''); $('sheetSel').value = s.sheetName; }
 }
-// 履歴の名前は利用者が入力するもの（自動では入れない）。日付だけ、読み込んだ日にする
+// 研究の名前は利用者が入力するもの（自動では入れない）。日付だけ、読み込んだ日にする
 function autoExpDate() { state.expDate = todayStr(); }
 async function handleFiles(fileList) {
   const files = Array.from(fileList || []);
@@ -2302,7 +2300,7 @@ async function exportXlsx() {
   ws3['!cols'] = [{ wch: 22 }, { wch: 14 }];
   XLSX.utils.book_append_sheet(wb, ws3, '全体統計');
   const ws4 = XLSX.utils.aoa_to_sheet([['項目', '内容'],
-    ['履歴の名前', state.expName || ''], ['日付', slashDate(state.expDate)], ['元ファイル', state.fileName || ''],
+    ['研究の名前', state.expName || ''], ['日付', slashDate(state.expDate)], ['元ファイル', state.fileName || ''],
     ['集中度の式', 'CI = 100 + 15 × (0.40 S_T + 0.35 S_M + 0.15 S_C + 0.10 S_S)'],
     ['S_T, S_M, S_C', '総合タイム・総合ミス・総合修正を全員で標準化した値にマイナスを付けたもの（少ないほど高評価）'],
     ['S_S', '1枚ごとのタイムの変動係数（CV）を全員で標準化した値にマイナスを付けたもの'],
@@ -2490,7 +2488,8 @@ async function boot() {
     const sess = await Store.getKV('session');
     if (sess && sess.dataset && Array.isArray(sess.dataset.persons) && sess.dataset.persons.length) {
       state.dataset = sess.dataset; state.check = sess.check || null; state.fileName = sess.fileName || ''; state.sheetName = sess.sheetName || '';
-      state.expDate = sess.expDate || todayStr();   // 履歴の名前は、入力のたびに設定へ即時保存しているので、ここでは上書きしない state.selectedId = sess.selectedId || null; state.historyId = sess.historyId || null;
+      // 研究の名前は、入力のたびに設定へ即時保存しているので、ここでは上書きしない
+      state.expDate = sess.expDate || todayStr(); state.selectedId = sess.selectedId || null; state.historyId = sess.historyId || null;
       state.excludeProblems = true;
       $('restoreNote').innerHTML = '<div class="notice ok">前回の分析結果を復元しました。新しいファイルを読み込むと置き換わります。</div>';
       runAnalysis();
