@@ -1,0 +1,2505 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>集中度記録サイト</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap">
+<style>
+:root{
+  --bg:#f4f5fb; --card:#ffffff; --ink:#1b1f3b; --muted:#5b6284; --line:#e2e5f3; --grid:#dde1f0;
+  --accent:#3d4fe0; --accent2:#7a5af8; --accent-soft:#eceefe;
+  --ok:#1f7a4d; --ok-bg:#e6f5ec; --warn:#8a5a00; --warn-bg:#fff4d9; --err:#b3261e; --err-bg:#fdecea;
+  --shadow:0 1px 2px rgba(27,31,59,.06),0 10px 28px rgba(27,31,59,.06);
+  --font:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1020; --card:#171a32; --ink:#eceeff; --muted:#a3a9cf; --line:#2a2e52; --grid:#2c3054;
+    --accent:#8b98ff; --accent2:#b59cff; --accent-soft:#232750;
+    --ok:#5ed39a; --ok-bg:#12291f; --warn:#f0c26a; --warn-bg:#33290f; --err:#ff9a92; --err-bg:#3a1a1c;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1020; --card:#171a32; --ink:#eceeff; --muted:#a3a9cf; --line:#2a2e52; --grid:#2c3054;
+  --accent:#8b98ff; --accent2:#b59cff; --accent-soft:#232750;
+  --ok:#5ed39a; --ok-bg:#12291f; --warn:#f0c26a; --warn-bg:#33290f; --err:#ff9a92; --err-bg:#3a1a1c;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:64px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.75;-webkit-text-size-adjust:100%}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+.skip{position:absolute;left:-999px;top:8px;background:var(--accent);color:#fff;padding:8px 14px;border-radius:10px;z-index:99}
+.skip:focus{left:8px}
+:focus-visible{outline:3px solid var(--accent2);outline-offset:2px;border-radius:6px}
+
+.hero{background:linear-gradient(135deg,#3d4fe0 0%,#6a55f2 60%,#8a5cf6 100%);color:#fff;padding:44px 0 40px}
+.hero h1{word-break:auto-phrase;text-wrap:balance;margin:0 0 10px;font-size:clamp(26px,5vw,42px);line-height:1.25;font-weight:900;letter-spacing:.01em}
+.hero .lead{margin:0 0 14px;font-size:clamp(15px,2.4vw,18px);max-width:46em;opacity:.95}
+.hero .tag{display:inline-block;margin:0;padding:6px 14px;border-radius:999px;background:rgba(255,255,255,.18);font-size:13px;line-height:1.5}
+.nav{position:sticky;top:0;z-index:20;background:var(--card);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;gap:4px;overflow-x:auto;padding-top:6px;padding-bottom:6px;scrollbar-width:thin}
+.nav a{white-space:nowrap;text-decoration:none;color:var(--muted);font-size:14px;font-weight:700;padding:8px 14px;border-radius:999px}
+.nav a:hover{background:var(--accent-soft);color:var(--accent)}
+.nav a[hidden]{display:none}
+
+main{padding:28px 0 72px}
+section{margin:0 0 28px}
+section[hidden]{display:none}
+h2{font-size:clamp(20px,3.2vw,26px);margin:0 0 14px;font-weight:900;line-height:1.4}
+h3{font-size:18px;margin:0 0 10px;font-weight:700;line-height:1.4}
+h4{font-size:16px;margin:18px 0 6px;font-weight:700}
+p{margin:0 0 10px}
+.card{background:var(--card);border-radius:20px;box-shadow:var(--shadow);padding:24px;margin:0 0 20px;border:1px solid var(--line)}
+.hint{color:var(--muted);font-size:14px}
+.sec-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.sec-head h2{margin:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid2 > .card{margin:0}
+.grid2{margin-bottom:20px}
+@media (max-width:860px){.grid2{grid-template-columns:1fr}.card{padding:18px}}
+
+.btn{font:inherit;font-size:14px;font-weight:700;border:1.5px solid var(--accent);background:var(--card);color:var(--accent);padding:9px 16px;border-radius:12px;cursor:pointer;line-height:1.4}
+.btn:hover{background:var(--accent-soft)}
+.btn.primary{background:var(--accent);color:#fff}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.danger{border-color:var(--err);color:var(--err)}
+.btn.danger:hover{background:var(--err-bg)}
+.btn.small{padding:6px 12px;font-size:13px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+input[type=text],input[type=date],input[type=search],select{font:inherit;font-size:15px;padding:9px 12px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);min-width:0}
+select{max-width:100%}
+label{font-weight:700;font-size:14px}
+
+.drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;padding:34px 16px;border:2.5px dashed var(--accent);border-radius:18px;background:var(--accent-soft);cursor:pointer;color:var(--ink)}
+.drop.over{background:var(--card);border-style:solid}
+.drop strong{font-size:18px}
+.drop input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.drop:focus-within{outline:3px solid var(--accent2);outline-offset:2px}
+
+.notice{border-radius:14px;padding:12px 16px;margin:12px 0;font-size:14.5px;line-height:1.7}
+.notice.err{background:var(--err-bg);color:var(--err);border:1px solid var(--err)}
+.notice.warn{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn)}
+.notice.ok{background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok)}
+.notice strong{display:block;margin-bottom:2px}
+.notice ul{margin:6px 0 0;padding-left:1.3em}
+.notice .btns{margin-top:10px}
+
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px}
+.tile{background:var(--accent-soft);border-radius:16px;padding:14px 16px}
+.tile .k{font-size:13px;color:var(--muted);font-weight:700}
+.tile .v{font-size:28px;font-weight:900;line-height:1.3;font-variant-numeric:tabular-nums}
+.tile .s{font-size:12.5px;color:var(--muted)}
+.tile.bad .v{color:var(--err)}
+
+.tscroll{overflow:auto;max-width:100%;border:1px solid var(--line);border-radius:14px}
+.tscroll.tall{max-height:520px}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:14.5px}
+th,td{padding:9px 12px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+thead th{background:var(--accent-soft);position:sticky;top:0;z-index:2;font-weight:700}
+tbody tr:hover{background:var(--accent-soft)}
+tr.sel{background:var(--accent-soft);box-shadow:inset 4px 0 0 var(--accent)}
+tfoot td{font-weight:700;background:var(--accent-soft)}
+#dataTbl{table-layout:fixed}
+#dataTbl th,#dataTbl td{overflow:hidden;text-overflow:ellipsis}
+#dataTbl td{cursor:pointer}
+.thb{font:inherit;font-weight:700;background:none;border:0;color:inherit;cursor:pointer;padding:0;text-align:inherit}
+th[data-key] .arr{display:inline-block;width:1em;color:var(--accent)}
+th{position:relative}
+.rz{position:absolute;right:0;top:0;bottom:0;width:9px;cursor:col-resize;touch-action:none}
+.rz:hover,.rz.drag{background:var(--accent);opacity:.35}
+.small-tbl td,.small-tbl th{font-size:13.5px;padding:7px 10px}
+.lft th,.lft td{text-align:left}
+
+.picker{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.picker select{min-width:150px}
+.chart-box{position:relative;height:400px}
+.chart-box.wave{height:340px}
+@media (max-width:560px){.chart-box{height:340px}.chart-box.wave{height:300px}}
+
+.metrics{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.metrics li{display:grid;grid-template-columns:118px 1fr;gap:14px;align-items:center;padding:12px 14px;border-radius:16px;border:1px solid var(--line)}
+.metrics li.main{background:var(--accent-soft);border-color:var(--accent)}
+.mv{font-size:38px;font-weight:900;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--accent);text-align:right}
+.metrics li.main .mv{font-size:46px}
+.mt strong{display:block;font-size:17px}
+.mt .d{display:block;font-size:13.5px;color:var(--muted)}
+.mt .why{display:block;font-size:12.5px;color:var(--muted);margin-top:2px;font-style:normal}
+.meter{position:relative;height:6px;border-radius:99px;background:var(--grid);margin-top:8px}
+.meter::after{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1.5px;background:var(--muted);opacity:.6}
+.meter i{position:absolute;top:-3px;width:12px;height:12px;border-radius:50%;background:var(--accent);border:2px solid var(--card);transform:translateX(-50%)}
+@media (max-width:480px){.metrics li{grid-template-columns:96px 1fr}.mv{font-size:32px}.metrics li.main .mv{font-size:38px}}
+.callout{margin-top:14px;padding:12px 14px;border-radius:14px;background:var(--warn-bg);color:var(--warn);font-size:13.5px;line-height:1.7}
+
+.method{margin-top:16px;border-top:1px solid var(--line);padding-top:8px}
+.calc{margin:0 0 14px;padding:12px 16px;border-radius:14px;background:var(--accent-soft);overflow-x:auto}
+.calc p{margin:0;font-variant-numeric:tabular-nums;white-space:nowrap}
+.calc .f{color:var(--muted)}
+.calc b{color:var(--accent)}
+.plain{font-size:14.5px;color:var(--muted)}
+
+.cv-box{width:100%}
+.cv-box canvas{display:block;max-width:100%}
+.sub{color:var(--muted);font-size:12px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat{padding:12px 14px;border-radius:14px;border:1px solid var(--line)}
+.stat .k{font-size:13px;color:var(--muted);font-weight:700}
+.stat .v{font-size:24px;font-weight:900;font-variant-numeric:tabular-nums}
+svg.box{width:100%;height:auto;display:block}
+svg.box text{fill:var(--muted);font-family:var(--font);font-size:12px}
+svg.box .ax{stroke:var(--muted);stroke-width:1}
+svg.box .bx{fill:var(--accent-soft);stroke:var(--accent);stroke-width:2}
+svg.box .md{stroke:var(--accent);stroke-width:3}
+svg.box .wh{stroke:var(--accent);stroke-width:2}
+svg.box .pt{fill:var(--accent);opacity:.55}
+svg.box .ol{fill:none;stroke:var(--accent);stroke-width:2}
+svg.box .me{fill:var(--accent2)}
+svg.box text.me{fill:var(--accent2);font-weight:700;font-size:13px}
+
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.hist{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:10px}
+.hist li{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid var(--line);border-radius:14px}
+.hist li.cur{border-color:var(--accent);background:var(--accent-soft)}
+.hist .t{font-weight:700}
+.hist .m{font-size:13px;color:var(--muted)}
+.chip{display:inline-block;padding:2px 10px;border-radius:99px;background:var(--accent-soft);color:var(--accent);font-size:12.5px;font-weight:700}
+details.set{margin-top:14px}
+details.set summary{cursor:pointer;font-weight:700;color:var(--accent)}
+.setgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:10px}
+.setgrid > div{display:flex;flex-direction:column;gap:6px}
+.about h3{margin-top:22px}
+.about ul{padding-left:1.3em;margin:6px 0 12px}
+.about li{margin-bottom:4px}
+dialog{border:0;border-radius:18px;padding:22px;max-width:min(92vw,420px);background:var(--card);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.35)}
+dialog::backdrop{background:rgba(10,12,30,.5)}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--card);padding:10px 18px;border-radius:12px;font-size:14px;z-index:60;max-width:90vw;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.toast[hidden]{display:none}
+.toast.err{background:var(--err);color:#fff}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">本文へ移動</a>
+
+<header class="hero">
+  <div class="wrap">
+    <h1 id="siteTitle">集中度記録サイト</h1>
+    <p class="lead">Excelをアップロードすると、タイム・ミス・修正から「集中度指数」を計算し、グラフと数値で確認できます。計算の途中経過もすべて見られます。</p>
+    <p class="tag">高校の研究用に設定した独自指標です（医学的・心理学的に確立された尺度ではありません）</p>
+  </div>
+</header>
+
+<nav class="nav" aria-label="ページ内メニュー">
+  <div class="wrap">
+    <a href="#upload" data-t="upload">読み込み</a>
+    <a href="#check" data-t="check">データ確認</a>
+    <a href="#person" data-t="person">個人の分析</a>
+    <a href="#overall" data-t="overall">全体統計</a>
+    <a href="#tableSec" data-t="tableSec">データ表</a>
+    <a href="#history" data-t="history">履歴</a>
+    <a href="#about" data-t="about">この集中度について</a>
+  </div>
+</nav>
+
+<main id="main" class="wrap">
+
+<section id="upload">
+  <div class="card">
+    <h2>履歴の名前</h2>
+    <label for="expName">履歴の名前を入力してください</label><br>
+    <input type="text" id="expName" maxlength="40" placeholder="例：実験1" autocomplete="off" style="width:min(100%,360px);margin-top:6px">
+    <p class="hint" style="margin-top:8px">入力した名前が、このサイトの名前（画面の一番上）になり、画像の見出しにも入ります：「（履歴の名前）の集中度記録サイト」。空のままなら「集中度記録サイト」です。履歴に保存するときの名前にもなります。</p>
+  </div>
+  <div class="card">
+    <h2>Excelファイルを読み込む</h2>
+    <label class="drop" id="drop">
+      <input type="file" id="file" multiple accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+      <strong>ここにExcel（.xlsx）をドラッグ</strong>
+      <span>またはクリックしてファイルを選ぶ（人数分をまとめて選べます）</span>
+    </label>
+    <p class="hint" style="margin-top:12px">2つの形式を自動で見分けます。①1人1ファイル（1枚が1行、記録者名つき）を人数分まとめて選ぶ ／ ②全員を1つの表にまとめたファイル（1人が1行）。時間は「1:30.50」でも「90.5」（秒）でも読めます。データはこの端末のブラウザの中だけで処理され、外部には送信されません。</p>
+    <div class="row">
+      <button class="btn small" id="tplBtn" type="button">入力用テンプレート（.xlsx）を保存</button>
+    </div>
+    <div id="sheetPick" hidden style="margin-top:14px">
+      <label for="sheetSel">読み込むシート（1ファイルのときだけ選べます）</label>
+      <select id="sheetSel"></select>
+    </div>
+    <div id="restoreNote"></div>
+    <div id="errors" aria-live="polite"></div>
+    <details class="set">
+      <summary>計算と表示の設定</summary>
+      <div class="setgrid">
+        <div>
+          <label for="sdSel">ばらつき（標準偏差）の計算方法</label>
+          <select id="sdSel">
+            <option value="sample">標本標準偏差（人数−1 で割る）</option>
+            <option value="population">母標準偏差（人数で割る）</option>
+          </select>
+          <span class="hint">迷ったら初期設定のままで構いません。全員の数値が同じ割合で変わるだけです。</span>
+        </div>
+        <div>
+          <label><input type="checkbox" id="smoothChk"> 集中力の波をなめらかに描く</label>
+          <label><input type="checkbox" id="meanChk"> 波に平均の線（100）を表示する</label>
+        </div>
+      </div>
+    </details>
+  </div>
+</section>
+
+<section id="check" hidden>
+  <div class="card">
+    <h2>読み込んだデータの確認</h2>
+    <div id="checkBody"></div>
+  </div>
+</section>
+
+<section id="person" hidden>
+  <div class="sec-head">
+    <h2>個人の分析</h2>
+    <div class="picker">
+      <label for="personSel">分析対象者（記録者）</label>
+      <button class="btn small" id="prevP" type="button" aria-label="前の人">‹</button>
+      <select id="personSel"></select>
+      <button class="btn small" id="nextP" type="button" aria-label="次の人">›</button>
+    </div>
+  </div>
+  <div id="notices"></div>
+  <div class="grid2">
+    <div class="card">
+      <h3>5角形レーダーチャート</h3>
+      <div class="chart-box"><canvas id="radarCv" role="img" aria-label="5角形レーダーチャート"></canvas></div>
+      <p class="hint" style="margin-top:8px">点線は全体の平均（100）です。外側にあるほど高い評価です。</p>
+      <div class="btns"><button class="btn" id="dlRadar" type="button">レーダーだけをPNGで保存</button></div>
+    </div>
+    <div class="card">
+      <h3>5つの数値</h3>
+      <ul class="metrics" id="metrics"></ul>
+      <div class="callout"><strong>「修正」の見方について：</strong>修正数は少ないほど高得点にしています。ただし、修正は「ミスに気づいて直せた」という良い面もあるため、修正が多い＝集中していない、とは言い切れません。この項目は参考値として見てください。</div>
+      <div class="btns">
+        <button class="btn" id="methodBtn" type="button" aria-expanded="false" aria-controls="method">計算方法を見る</button>
+        <button class="btn primary" id="dlOverview" type="button">個人の画像を1枚で保存（レーダー＋数値＋波）</button>
+      </div>
+      <div class="btns">
+        <button class="btn" id="dlZip" type="button">全員分の個人画像をZIPで保存</button>
+        <label style="font-weight:500"><input type="checkbox" id="zipExtra"> レーダー・波の単独画像も入れる</label>
+      </div>
+      <p class="hint" style="margin-top:6px">「個人の画像を1枚で保存」は、記録者名・①レーダー・②5つの数値・③波を1枚にまとめた画像です。ZIPには、その1枚が1人につき1つ、「01_名前_総合分析.png」の形で入ります。</p>
+    </div>
+  </div>
+  <div class="card">
+    <h3>集中力の波（集中度の推移）</h3>
+    <div class="chart-box wave"><canvas id="waveCv" role="img" aria-label="集中度の推移グラフ"></canvas></div>
+    <p class="hint" style="margin-top:8px">点にカーソルを合わせる（スマホはタップ）と、その枚のタイム・ミス・修正が出ます。線は点と点のあいだをなめらかにつないだだけで、実際のデータは点の位置です。</p>
+    <div class="btns"><button class="btn" id="dlWave" type="button">波だけをPNGで保存</button></div>
+  </div>
+  <div class="card">
+    <h3>1枚ごとの詳細データ</h3>
+    <div class="tscroll"><table class="small-tbl" id="sheetTbl"></table></div>
+    <p class="hint" style="margin-top:8px">「速度・正確性・修正のスコア」は、全員・全枚数を並べたときの位置を示す数値です（0＝平均、プラスほど良い）。</p>
+  </div>
+  <div class="card" id="method" hidden></div>
+</section>
+
+<section id="overall" hidden>
+  <div class="card">
+    <h2>全体統計</h2>
+    <div class="stats" id="stats"></div>
+    <h3 style="margin-top:22px">集中度の分布（箱ひげ図）</h3>
+    <div id="boxWrap"></div>
+    <h3 style="margin-top:22px">全員の集中度の波（枚ごとの推移）</h3>
+    <div class="cv-box"><canvas id="ovWaveCv" role="img" aria-label="全員の集中度の推移。太線は平均、帯は真ん中の50%の人、細線は一人ひとり"></canvas></div>
+    <p class="hint">太線＝全員の平均、帯＝真ん中の50%の人、細線＝一人ひとりです。全員が同じ傾向（後半に下がるなど）かどうかが見えます。</p>
+    <h3 style="margin-top:22px">集中度の順位（平均100との差）</h3>
+    <div class="cv-box"><canvas id="ovBarCv" role="img" aria-label="人ごとの集中度。平均100からの差を左右の棒で表示"></canvas></div>
+    <div class="btns">
+      <button class="btn primary" id="dlOverall" type="button">全体の分析画面を画像として保存</button>
+      <label style="font-weight:500"><input type="checkbox" id="nameChk"> 画像に記録者名を出す</label>
+    </div>
+    <p class="hint" style="margin-top:6px">全体の画像は、発表資料に載せることを考えて、初期設定では名前を出さず「参加者1」「参加者2」…と表示します（データ表の画像も同じ）。個人の画像は常に記録者名が入ります。</p>
+  </div>
+</section>
+
+<section id="tableSec" hidden>
+  <div class="card">
+    <h2>データ表</h2>
+    <div class="toolbar">
+      <input type="search" id="q" placeholder="人物IDで検索" aria-label="人物IDで検索" style="min-width:200px">
+      <span class="hint" id="qCount"></span>
+    </div>
+    <div class="tscroll tall"><table id="dataTbl"></table></div>
+    <p class="hint" style="margin-top:8px">見出しをクリックで並び替え、見出しの右端をドラッグで列の幅を調整、行をクリックすると個人の分析に切り替わります。</p>
+    <div class="btns">
+      <button class="btn primary" id="dlCsv" type="button">分析結果をCSVで保存</button>
+      <button class="btn primary" id="dlXlsx" type="button">分析結果をExcelで保存</button>
+      <button class="btn" id="dlTblImg" type="button">データ表を画像として保存</button>
+    </div>
+  </div>
+</section>
+
+<section id="history">
+  <div class="card">
+    <h2>分析の履歴</h2>
+    <div id="histNotice"></div>
+    <div id="saveBox" hidden>
+      <div class="row">
+        <div><label for="expName2">履歴の名前</label><br><input type="text" id="expName2" maxlength="40" placeholder="例：実験1" autocomplete="off"></div>
+        <div><label for="expDate">日付</label><br><input type="date" id="expDate"></div>
+        <div style="align-self:flex-end"><button class="btn primary" id="saveHist" type="button">履歴に保存</button></div>
+      </div>
+      <p class="hint" style="margin-top:8px">保存されるのは、読み取った数値データ・人数・集中度の平均とばらつきです。Excelファイルそのものは保存しません。人物IDは本名ではなく番号にしておくのがおすすめです。</p>
+    </div>
+    <ul class="hist" id="histList"></ul>
+    <div class="btns">
+      <button class="btn danger small" id="delHist" type="button">履歴を削除</button>
+      <button class="btn danger small" id="delAll" type="button">すべてのデータを削除</button>
+    </div>
+  </div>
+</section>
+
+<section id="about">
+  <div class="card about">
+    <h2>この集中度について</h2>
+    <h3>集中度指数について</h3>
+    <p>このサイトの集中度指数は、100マス計算における <b>計算速度・正確性・修正数・タイムの安定性</b> を組み合わせて、本研究のために作成した<b>独自指標</b>です。</p>
+    <p>これは医学的・心理学的に確立された「集中力そのもの」を直接測定する尺度ではありません。したがって、「集中度112だから絶対的に集中力が高い」という意味ではなく、本研究で設定した条件における<b>相対的な指標</b>として扱ってください。また、速度と正確性にはトレードオフ（速くやるとミスが増える関係）があるため、速度だけで集中度を判断しない設計になっています。</p>
+    <p>各部品の重み（40％・35％・15％・10％）は、既存の科学的に確立された公式ではなく、本研究で設定した値です。</p>
+
+    <h3>計算のしくみ（たとえ話）</h3>
+    <ul>
+      <li><b>標準化</b>：テストの偏差値と同じ考え方です。平均点の人が偏差値50、平均より少し上なら60、というあの換算です。ここでは平均を「100」、「ふつうの上下の幅」を「15」にそろえています。</li>
+      <li><b>標準偏差</b>：クラスの点数の「散らばり具合」です。全員が近い点なら小さく、点数がバラバラなら大きくなります。</li>
+      <li><b>合成</b>：国語・数学・英語・理科の成績を「40：35：15：10」の割合で混ぜて総合点を作るイメージです。速度・正確性・修正・安定性が、その4教科にあたります。</li>
+      <li><b>変動係数（安定性）</b>：毎日の通学時間が、いつもほぼ同じ人と、日によってバラバラな人を比べるものです。1枚ごとのタイムのばらつきを、平均タイムに対する割合で表します。</li>
+    </ul>
+
+    <h3>4つの部品</h3>
+    <div class="tscroll"><table class="small-tbl">
+      <thead><tr><th>部品</th><th>重み</th><th>高くなる条件</th></tr></thead>
+      <tbody>
+        <tr><td>速度 S_T</td><td>40%</td><td>総合タイムが全体平均より短い</td></tr>
+        <tr><td>正確性 S_M</td><td>35%</td><td>総合ミス数が全体平均より少ない</td></tr>
+        <tr><td>修正 S_C</td><td>15%</td><td>総合修正数が全体平均より少ない（解釈に注意）</td></tr>
+        <tr><td>安定性 S_S</td><td>10%</td><td>1枚ごとのタイムのばらつきが小さい</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>修正数の見方</h3>
+    <p>テストで書き間違えて消しゴムで直す場面を思い浮かべてください。直した回数が多い人は、ミスをしやすい面もありますが、間違いに気づいて直せた面もあります。この2つは区別できないため、修正の重みは小さく（15％）しています。</p>
+
+    <h3>使うときの注意</h3>
+    <ul>
+      <li>この指標は「参加者どうしの比較」です。集中力の差だけでなく、もともとの計算の得意・不得意も混ざります。</li>
+      <li>1枚ごとの「波」には、集中の変化だけでなく、練習による慣れも含まれます。</li>
+      <li>人数が少ない（目安：10人未満）と、平均やばらつきが不安定になり、数値が大きく動きます。</li>
+      <li>集中度指数は、平均が100になるように作られていますが、ばらつき（標準偏差）は15ぴったりにはなりません。実際の値は「全体統計」で確認できます。</li>
+      <li>重みを変えると順位が入れ替わる人がいる可能性があります。発表では「重みは研究者が設定した値」と明記してください。</li>
+    </ul>
+
+    <h3>Excelの形式（2種類を自動で見分けます）</h3>
+    <p><b>① 1人1ファイル</b>（1枚が1行。記録者名つき）——人数分のファイルをまとめて選んでください。</p>
+    <div class="tscroll"><table class="small-tbl lft">
+      <thead><tr><th>枚数</th><th>タイム</th><th>タイム(総合)</th><th>修正数</th><th>ミス数</th><th>感想・変化</th></tr></thead>
+      <tbody><tr><td>1</td><td>01:51.31</td><td>01:51.31</td><td>2</td><td>0</td><td>（読み込みません）</td></tr>
+      <tr><td>2</td><td>01:39.04</td><td>03:30.35</td><td>1</td><td>0</td><td></td></tr>
+      <tr><td colspan="6">…　表の下に「記録者」と名前、「総合タイム／総修正数／総ミス数」の欄があると、検算に使います</td></tr></tbody>
+    </table></div>
+    <ul>
+      <li>時間は「分:秒.小数」（例：1:30.50 ＝ 90.50秒）でも、秒の数字（90.5）でも、Excelの時刻形式のセルでも読めます。</li>
+      <li>「タイム(総合)」の累計や、表の下の合計欄が1枚ごとの値と合わないときは、警告を出します（分析は1枚ごとの値で行います）。</li>
+      <li>「感想・変化」などの文章の欄は、個人的な内容を含みうるため、読み込みも保存も画像化もしません。</li>
+      <li>人によって枚数が違うときは、「多数派の枚数にそろわない人を除く」か「全員を最小の枚数にそろえる」かを選べます。</li>
+    </ul>
+    <p><b>② 全員を1つの表にまとめたファイル</b>（1人が1行）</p>
+    <div class="tscroll"><table class="small-tbl lft">
+      <thead><tr><th>人物ID</th><th>1枚目タイム</th><th>1枚目ミス</th><th>1枚目修正</th><th>2枚目タイム</th><th>…</th></tr></thead>
+      <tbody><tr><td>A001</td><td>1:30.50</td><td>1</td><td>0</td><td>1:29.00</td><td>…</td></tr></tbody>
+    </table></div>
+    <p class="hint" style="margin-top:8px">列名が多少ちがっても（「タイム1」「T1」など）自動で判定します。全員が同じ枚数で、空欄がないデータが必要です。</p>
+  </div>
+</section>
+
+</main>
+
+<dialog id="dlg">
+  <p id="dlgMsg" style="margin-bottom:16px"></p>
+  <div class="btns" style="justify-content:flex-end;margin-top:0">
+    <button class="btn" id="dlgCancel" type="button">やめる</button>
+    <button class="btn danger" id="dlgOk" type="button">削除する</button>
+  </div>
+</dialog>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<!-- 自前のコード（読み込む順番が大切です。詳しくは README.md） -->
+<script>
+/* --- js/core.js --- */
+/* =====================================================================
+ * core.js — 画面に依存しない「計算の本体」（Node.jsでもそのままテストできる）
+ *   1. 統計の基本        mean / sdev / standardize / quantile
+ *   2. 時間・数値の読み取り   toNumber（1:30.50 / 90.5 / 1分30秒 など）
+ *   3. 列の自動認識        classifyHeader（横持ち） / classifyLongHeader（縦持ち）
+ *   4. 表の解析           parseTable（1人1行）/ parseLong（1人1ファイル）/ parseAny
+ *   5. 複数ファイルの合流    mergeSources
+ *   6. 集中度の計算        analyze（標準化 → 4つのスコア → CI → 1枚ごとのCI）
+ * ===================================================================== */
+const Core = (() => {
+  'use strict';
+
+  /* ---------- 定数 ---------- */
+  const WEIGHTS = Object.freeze({ T: 0.40, M: 0.35, C: 0.15, S: 0.10 });
+  const LABEL = { T: 'タイム', M: 'ミス', C: '修正' };
+
+  /* ---------- 統計の基本 ---------- */
+  const sum = a => a.reduce((x, y) => x + y, 0);
+  const mean = a => (a.length ? sum(a) / a.length : NaN);
+  function sdev(a, ddof) {
+    const n = a.length;
+    if (n - ddof <= 0) return NaN;
+    const m = mean(a);
+    let s = 0;
+    for (const x of a) s += (x - m) * (x - m);
+    return Math.sqrt(s / (n - ddof));
+  }
+  // 標準化。SDが0（またはほぼ0）のときは Z=0 にして NaN/Infinity を出さない
+  function standardize(a, ddof) {
+    const m = mean(a);
+    const sd = sdev(a, ddof);
+    const degenerate = !(sd > 1e-9 * Math.max(1, Math.abs(m)));
+    const z = a.map(x => (degenerate ? 0 : (x - m) / sd));
+    return { mean: m, sd, z, degenerate };
+  }
+  const neg = z => (z === 0 ? 0 : -z);
+  function quantile(sorted, p) {
+    if (!sorted.length) return NaN;
+    const idx = (sorted.length - 1) * p;
+    const lo = Math.floor(idx), hi = Math.ceil(idx);
+    return sorted[lo] + (sorted[hi] - sorted[lo]) * (idx - lo);
+  }
+  const clamp = (x, lo, hi) => Math.min(hi, Math.max(lo, x));
+  // 表示用スコア(100±15)を、レーダーチャートの0〜100に変換（100±45 → 0〜100、範囲外は端に丸める）
+  const radarValue = d => clamp((d - 55) / 90 * 100, 0, 100);
+
+  function fmt(x, d = 1) {
+    if (typeof x !== 'number' || !Number.isFinite(x)) return '—';
+    const f = Math.pow(10, d);
+    let r = Math.round(x * f) / f;
+    if (r === 0) r = 0;
+    return r.toFixed(d);
+  }
+  function colLetter(n) {
+    let s = '';
+    n = n + 1;
+    while (n > 0) { const r = (n - 1) % 26; s = String.fromCharCode(65 + r) + s; n = Math.floor((n - 1) / 26); }
+    return s;
+  }
+
+  /* ---------- 列の自動認識 ---------- */
+  const normText = s => String(s == null ? '' : s).normalize('NFKC').toLowerCase().replace(/[\s_\-・:：()（）\[\]【】]/g, '');
+  const isEmptyCell = v => v === null || v === undefined || (typeof v === 'string' && v.trim() === '');
+  const ID_RE = /^(人物|被験者|参加者|名前|氏名|生徒|出席番号|番号|id|no\.?$|name|subject|participant|student)/;
+
+  function classifyHeader(raw) {
+    if (isEmptyCell(raw)) return null;
+    const h = normText(raw).replace(/100マス/g, '').replace(/100ます/g, '');
+    if (!h) return null;
+    let metric = null;
+    if (/修正|訂正|直し|correct|fix|revis/.test(h)) metric = 'C';
+    else if (/ミス|誤|間違|まちがい|エラー|error|miss|mistake|wrong/.test(h)) metric = 'M';
+    else if (/タイム|時間|秒|time|sec/.test(h)) metric = 'T';
+    let sheet = null;
+    let m = h.match(/(\d+)(?:枚|回|sheet|no|#|番)/) || h.match(/(?:sheet|no\.?|#|第)(\d+)/);
+    if (m) sheet = parseInt(m[1], 10);
+    else { const all = h.match(/\d+/g); if (all) sheet = parseInt(all[all.length - 1], 10); }
+    if (!metric) {
+      const sm = h.match(/^([tmc])(\d+)$/) || h.match(/^(\d+)([tmc])$/);
+      if (sm) {
+        const letter = /[tmc]/.test(sm[1]) ? sm[1] : sm[2];
+        const digits = /\d/.test(sm[1]) ? sm[1] : sm[2];
+        metric = letter.toUpperCase();
+        sheet = parseInt(digits, 10);
+      }
+    }
+    if (!metric || sheet == null || !(sheet >= 1)) return null;
+    return { metric, sheet };
+  }
+  function findHeaderRow(aoa) {
+    let best = { row: 0, hits: 0 };
+    const lim = Math.min(aoa.length, 15);
+    for (let r = 0; r < lim; r++) {
+      const row = aoa[r] || [];
+      let hits = 0;
+      for (let c = 0; c < row.length; c++) if (classifyHeader(row[c])) hits++;
+      if (hits > best.hits) best = { row: r, hits };
+    }
+    return best;
+  }
+
+  /* ---------- セルの数値化 ---------- */
+  function toNumber(v, kind) {
+    if (v === null || v === undefined) return { s: 'empty' };
+    if (typeof v === 'number') return Number.isFinite(v) ? { s: 'ok', v } : { s: 'invalid' };
+    if (typeof v === 'boolean' || v instanceof Date) return { s: 'invalid' };
+    let str = String(v).normalize('NFKC').trim();
+    if (str === '') return { s: 'empty' };
+    if (kind === 'T') {
+      const ts = str.includes(':') ? str.replace(/(\d),(\d+)$/, '$1.$2') : str;
+      let mm = ts.match(/^(\d+):(\d{1,2}):(\d{1,2}(?:\.\d+)?)$/);
+      if (mm) { const mi = parseInt(mm[2], 10), se = parseFloat(mm[3]); return mi < 60 && se < 60 ? { s: 'ok', v: parseInt(mm[1], 10) * 3600 + mi * 60 + se } : { s: 'invalid' }; }
+      mm = ts.match(/^(\d+):(\d{1,2}(?:\.\d+)?)$/);
+      if (mm) { const se = parseFloat(mm[2]); return se < 60 ? { s: 'ok', v: parseInt(mm[1], 10) * 60 + se } : { s: 'invalid' }; }
+      mm = ts.match(/^(\d+)分(\d+(?:\.\d+)?)秒?$/);
+      if (mm) { const se = parseFloat(mm[2]); return se < 60 ? { s: 'ok', v: parseInt(mm[1], 10) * 60 + se } : { s: 'invalid' }; }
+    }
+    str = str.replace(/(秒|sec|s|回|個|枚|点|ミス)$/i, '').trim().replace(/,/g, '');
+    if (!/^[+-]?(\d+\.?\d*|\.\d+)$/.test(str)) return { s: 'invalid' };
+    const n = Number(str);
+    return Number.isFinite(n) ? { s: 'ok', v: n } : { s: 'invalid' };
+  }
+
+  /* ---------- 表の解析 ---------- */
+  function parseTable(aoa, opts = {}) {
+    const rowOff = opts.rowOffset || 0, colOff = opts.colOffset || 0;
+    const out = { format: 'wide', errors: [], warnings: [], persons: [], columns: null, stats: { blankRows: 0, blankCells: 0, badCells: 0 }, outliers: [] };
+    const err = (code, title, detail, hint) => out.errors.push({ code, title, detail, hint: hint || '' });
+
+    if (!Array.isArray(aoa) || aoa.length === 0 || aoa.every(r => !r || r.every(isEmptyCell))) {
+      err('empty', 'シートにデータがありません', '選んだシートが空です。', '別のシートを選ぶか、データを入力してから読み込んでください。');
+      return out;
+    }
+    const hr = findHeaderRow(aoa);
+    const headerRow = Array.from(aoa[hr.row] || []);
+    const ncols = Math.max(...aoa.map(r => (r ? r.length : 0)), headerRow.length);
+
+    // 列の判定
+    let metrics = [];
+    headerRow.forEach((h, col) => { const c = classifyHeader(h); if (c) metrics.push({ col, sheet: c.sheet, metric: c.metric, header: String(h).trim() }); });
+    const metricCols = new Set(metrics.map(m => m.col));
+    let idCol = -1;
+    headerRow.forEach((h, col) => { if (idCol < 0 && !metricCols.has(col) && !isEmptyCell(h) && ID_RE.test(normText(h))) idCol = col; });
+    if (idCol < 0 && !metricCols.has(0)) idCol = 0;
+    let fallback = false;
+
+    if (metrics.length === 0) {
+      // 見出しが読めないとき：左端=ID、以降を「タイム・ミス・修正」の3列セットとみなす
+      const dataCols = [];
+      for (let c = 0; c < ncols; c++) {
+        if (c === idCol) continue;
+        let any = false;
+        for (let r = hr.row + 1; r < aoa.length; r++) if (aoa[r] && !isEmptyCell(aoa[r][c])) { any = true; break; }
+        if (any) dataCols.push(c);
+      }
+      if (dataCols.length >= 3 && dataCols.length % 3 === 0) {
+        const kinds = ['T', 'M', 'C'];
+        dataCols.forEach((c, i) => metrics.push({ col: c, sheet: Math.floor(i / 3) + 1, metric: kinds[i % 3], header: isEmptyCell(headerRow[c]) ? '（見出しなし）' : String(headerRow[c]).trim() }));
+        fallback = true;
+        out.warnings.push('見出しから「タイム・ミス・修正」を判定できなかったため、左端をID、その右を「タイム・ミス・修正」の3列ずつのセットとして読み込みました。列の並びが違う場合は見出しを直してください。');
+      } else {
+        err('columns', '必要なデータ列が見つかりません',
+          '「タイム」「ミス」「修正」の列を判定できませんでした。',
+          '見出しを「1枚目タイム」「1枚目ミス」「1枚目修正」「2枚目タイム」…のようにしてください（「タイム1」「T1」でも読めます）。');
+        return out;
+      }
+    }
+    if (idCol < 0) {
+      err('id', '人物IDの列が見つかりません', '人物を区別するIDの列がありません。', '左端の列に「人物ID」という見出しでIDを入れてください。');
+      return out;
+    }
+
+    // 枚数ごとにまとめる
+    const groupMap = new Map();
+    const dupes = [];
+    for (const m of metrics) {
+      if (!groupMap.has(m.sheet)) groupMap.set(m.sheet, {});
+      const g = groupMap.get(m.sheet);
+      if (g[m.metric]) dupes.push(`${m.sheet}枚目の${LABEL[m.metric]}`); else g[m.metric] = m;
+    }
+    if (dupes.length) {
+      err('dupcol', '同じ意味の列が重複しています', dupes.join('、') + ' の列が複数あります。', '見出しを見直して、1つの枚数につき「タイム・ミス・修正」を1列ずつにしてください。');
+      return out;
+    }
+    const sheetNos = [...groupMap.keys()].sort((a, b) => a - b);
+    const missing = [];
+    for (const no of sheetNos) for (const k of ['T', 'M', 'C']) if (!groupMap.get(no)[k]) missing.push(`${no}枚目の${LABEL[k]}`);
+    if (missing.length) {
+      err('missingcol', '必要なデータ列がありません', missing.join('、') + ' の列が見つかりません。', 'すべての枚数に「タイム・ミス・修正」の3列をそろえてください。');
+      return out;
+    }
+    for (let i = 1; i < sheetNos.length; i++) if (sheetNos[i] !== sheetNos[i - 1] + 1) { out.warnings.push('枚数の番号が連続していません（' + sheetNos.join(', ') + '）。この番号のとおりに読み込みます。'); break; }
+    const groupList = sheetNos.map(no => groupMap.get(no));
+    const G = groupList.length;
+
+    const used = new Set([idCol, ...metrics.map(m => m.col)]);
+    const unused = [];
+    headerRow.forEach((h, col) => { if (!used.has(col) && !isEmptyCell(h)) unused.push(String(h).trim()); });
+    if (unused.length) out.warnings.push('使わなかった列：' + unused.join('、') + '（合計などの列は、このサイトが自分で計算するため不要です）');
+
+    out.columns = {
+      idCol, idHeader: isEmptyCell(headerRow[idCol]) ? '（見出しなし）' : String(headerRow[idCol]).trim(), idLetter: colLetter(idCol + colOff),
+      fallback, unused,
+      groups: sheetNos.map(no => {
+        const g = groupMap.get(no);
+        const one = k => ({ header: g[k].header, letter: colLetter(g[k].col + colOff) });
+        return { sheet: no, T: one('T'), M: one('M'), C: one('C') };
+      })
+    };
+
+    // 本体の行
+    const idSeen = new Map();
+    let blankIdCount = 0, dupIdCount = 0;
+    for (let r = hr.row + 1; r < aoa.length; r++) {
+      const row = aoa[r] || [];
+      if (row.every(isEmptyCell)) { out.stats.blankRows++; continue; }
+      const excelRow = r + rowOff + 1;
+      let id = isEmptyCell(row[idCol]) ? '' : String(row[idCol]).trim();
+      if (!id) { id = '行' + excelRow; blankIdCount++; }
+      const seen = (idSeen.get(id) || 0) + 1;
+      idSeen.set(id, seen);
+      if (seen > 1) { id = id + '(' + seen + ')'; dupIdCount++; }
+
+      const sheets = [];
+      const problems = [];
+      let blankGroups = 0;
+      for (const g of groupList) {
+        const cells = ['T', 'M', 'C'].map(k => {
+          const col = g[k].col;
+          const raw = row[col];
+          return { k, raw, p: toNumber(raw, k), addr: colLetter(col + colOff) + excelRow, header: g[k].header };
+        });
+        const empties = cells.filter(c => c.p.s === 'empty').length;
+        if (empties === 3) { blankGroups++; sheets.push(null); continue; }
+        let ok = true;
+        for (const c of cells) {
+          if (c.p.s === 'empty') { problems.push({ type: 'blank', message: `${c.addr}（${c.header}）が空欄です` }); out.stats.blankCells++; ok = false; }
+          else if (c.p.s === 'invalid') { problems.push({ type: 'invalid', message: `${c.addr}（${c.header}）が数値として読めません：「${String(c.raw).slice(0, 20)}」` }); out.stats.badCells++; ok = false; }
+          else if (c.k === 'T' && !(c.p.v > 0)) { problems.push({ type: 'range', message: `${c.addr}（${c.header}）のタイムが0以下です：${c.p.v}` }); out.stats.badCells++; ok = false; }
+          else if (c.k !== 'T' && c.p.v < 0) { problems.push({ type: 'range', message: `${c.addr}（${c.header}）がマイナスです：${c.p.v}` }); out.stats.badCells++; ok = false; }
+        }
+        sheets.push(ok ? { t: cells[0].p.v, m: cells[1].p.v, c: cells[2].p.v } : null);
+      }
+      if (blankGroups === G) problems.push({ type: 'nodata', message: `${excelRow}行目：IDはありますが、データがすべて空欄です` });
+      else if (blankGroups > 0) problems.push({ type: 'count', message: `${excelRow}行目：${G}枚中 ${G - blankGroups}枚分しか入力がありません（枚数が他の人と異なります）` });
+      out.persons.push({ id, row: excelRow, sheets: problems.length ? null : sheets, problems });
+    }
+    if (blankIdCount) out.warnings.push(`IDが空欄の行が ${blankIdCount} 行ありました。「行○」という仮のIDを付けています。`);
+    if (dupIdCount) out.warnings.push(`同じIDが複数の行にありました（${dupIdCount}件）。後ろの行に (2) などを付けて区別しています。`);
+    if (out.persons.length === 0) {
+      err('nodata', '人物のデータがありません', '見出しの下にデータの行が見つかりませんでした。', '見出しの次の行から、1人1行でデータを入力してください。');
+      return out;
+    }
+    out.outliers = detectOutliers(out.persons.filter(p => !p.problems.length), sheetNos);
+    return out;
+  }
+
+  function detectOutliers(persons, sheetNos) {
+    const out = [];
+    const recs = [];
+    persons.forEach(p => p.sheets.forEach((s, k) => recs.push({ id: p.id, sheet: sheetNos ? sheetNos[k] : k + 1, t: s.t, m: s.m, c: s.c })));
+    const names = { t: 'タイム', m: 'ミス', c: '修正' };
+    if (recs.length >= 8) {
+      ['t', 'm', 'c'].forEach(key => {
+        const st = standardize(recs.map(r => r[key]), 1);
+        if (st.degenerate) return;
+        recs.forEach((r, j) => {
+          if (Math.abs(st.z[j]) > 3) out.push({ id: r.id, sheet: r.sheet, text: `${r.id} の ${r.sheet}枚目の${names[key]}（${r.sheet ? r[key] : ''}）が、全体の平均から大きく離れています（平均から標準偏差の${fmt(Math.abs(st.z[j]), 1)}倍）` });
+        });
+      });
+    }
+    recs.forEach(r => {
+      if (r.m > 100) out.push({ id: r.id, sheet: r.sheet, text: `${r.id} の ${r.sheet}枚目のミスが ${r.m} 回です（100マスを超えています）` });
+      if (r.c > 100) out.push({ id: r.id, sheet: r.sheet, text: `${r.id} の ${r.sheet}枚目の修正が ${r.c} 回です（100マスを超えています）` });
+      if (!Number.isInteger(r.m)) out.push({ id: r.id, sheet: r.sheet, text: `${r.id} の ${r.sheet}枚目のミスが小数です（${r.m}）` });
+      if (!Number.isInteger(r.c)) out.push({ id: r.id, sheet: r.sheet, text: `${r.id} の ${r.sheet}枚目の修正が小数です（${r.c}）` });
+    });
+    return out;
+  }
+
+  function buildDataset(parsed) {
+    const valid = parsed.persons.filter(p => !p.problems.length);
+    const bad = parsed.persons.filter(p => p.problems.length);
+    return {
+      persons: valid.map(p => ({ id: p.id, sheets: p.sheets })),
+      sheetCount: parsed.columns.groups.length,
+      sheetNos: parsed.columns.groups.map(g => g.sheet),
+      excluded: bad.map(p => p.id),
+      hasProblems: bad.length > 0
+    };
+  }
+
+  /* ---------- 集中度の計算 ---------- */
+  // 使えない部品（null）があるときは、残りの重みを合計1に直して合成する
+  function combine(sc) {
+    let num = 0, den = 0;
+    for (const k of ['T', 'M', 'C', 'S']) {
+      const v = sc[k];
+      if (v !== null && v !== undefined && Number.isFinite(v)) { num += WEIGHTS[k] * v; den += WEIGHTS[k]; }
+    }
+    if (den === 0) return 0;
+    return Math.abs(den - 1) < 1e-9 ? num : num / den;
+  }
+
+  function analyze(dataset, opts = {}) {
+    const ddof = opts.sd === 'population' ? 0 : 1;
+    const P = dataset.persons, N = P.length, K = dataset.sheetCount;
+    const res = { errors: [], warnings: [], ddof, N, K, weights: WEIGHTS };
+    if (N < 2) {
+      res.errors.push({ title: '人数が少なすぎます', detail: `分析できる人が ${N}人しかいません。ばらつき（標準偏差）は2人以上いないと計算できません。`, hint: '3人以上、できれば10人以上のデータを読み込んでください。' });
+      return res;
+    }
+    if (K < 1) { res.errors.push({ title: '枚数がありません', detail: '1枚以上のデータが必要です。', hint: '' }); return res; }
+    if (N < 10) res.warnings.push(`人数が ${N}人と少ないため、平均やばらつきが不安定です。結果は参考程度に見てください。`);
+
+    const T = P.map(p => sum(p.sheets.map(s => s.t)));
+    const M = P.map(p => sum(p.sheets.map(s => s.m)));
+    const C = P.map(p => sum(p.sheets.map(s => s.c)));
+    const meanTimes = P.map(p => mean(p.sheets.map(s => s.t)));
+    const sdTimes = K >= 2 ? P.map(p => sdev(p.sheets.map(s => s.t), ddof)) : null;
+    const cv = K >= 2 ? P.map((p, i) => sdTimes[i] / meanTimes[i]) : null;
+
+    const nT = standardize(T, ddof), nM = standardize(M, ddof), nC = standardize(C, ddof);
+    const nCV = cv ? standardize(cv, ddof) : null;
+    const noteDeg = (n, label, vals) => { if (n && n.degenerate) res.warnings.push(`全員の${label}が同じ値（${fmt(vals[0], 2)}）で、ばらつきが0です。差がつかないため、この項目は全員「平均（0点）」として扱います。`); };
+    noteDeg(nT, '総合タイム', T); noteDeg(nM, '総合ミス数', M); noteDeg(nC, '総合修正数', C);
+    if (nCV && nCV.degenerate) res.warnings.push('全員のタイムの安定性（変動係数）が同じ値のため、この項目は全員「平均（0点）」として扱います。');
+    if (!nCV) res.warnings.push('1枚だけのデータなので、タイムの安定性は計算できません。安定性を除いた3項目（重み 40:35:15 を合計1に直したもの）で集中度を出しています。');
+    if (nT.degenerate && nM.degenerate && nC.degenerate && (!nCV || nCV.degenerate)) {
+      res.errors.push({ title: '全員の値が同じです', detail: 'すべての指標でばらつきが0のため、人による差を数値にできません。', hint: '入力データが正しいか確認してください。' });
+      return res;
+    }
+
+    const persons = P.map((p, i) => {
+      const sT = neg(nT.z[i]), sM = neg(nM.z[i]), sC = neg(nC.z[i]);
+      const sS = nCV ? neg(nCV.z[i]) : null;
+      const X = combine({ T: sT, M: sM, C: sC, S: sS });
+      const ci = 100 + 15 * X;
+      const scores = { ci, speed: 100 + 15 * sT, accuracy: 100 + 15 * sM, correction: 100 + 15 * sC, stability: sS === null ? null : 100 + 15 * sS };
+      const radar = {};
+      for (const k of Object.keys(scores)) radar[k] = scores[k] === null ? 50 : radarValue(scores[k]);
+      return {
+        id: p.id, index: i, T: T[i], M: M[i], C: C[i],
+        times: p.sheets.map(s => s.t), meanTime: meanTimes[i], sdTime: sdTimes ? sdTimes[i] : null, cv: cv ? cv[i] : null,
+        zT: nT.z[i], zM: nM.z[i], zC: nC.z[i], zCV: nCV ? nCV.z[i] : null,
+        sT, sM, sC, sS, X, scores, radar, sheets: []
+      };
+    });
+
+    // 1枚ごと：全員・全枚数をひとまとめにして標準化（安定性は「1人につき1つ」の値なので、ここでは使わない）
+    const recs = [];
+    P.forEach((p, i) => p.sheets.forEach((s, k) => recs.push({ i, k, t: s.t, m: s.m, c: s.c })));
+    const rT = standardize(recs.map(r => r.t), ddof), rM = standardize(recs.map(r => r.m), ddof), rC = standardize(recs.map(r => r.c), ddof);
+    recs.forEach((r, j) => {
+      const sT = neg(rT.z[j]), sM = neg(rM.z[j]), sC = neg(rC.z[j]);
+      const X = combine({ T: sT, M: sM, C: sC, S: null });
+      persons[r.i].sheets[r.k] = { no: dataset.sheetNos ? dataset.sheetNos[r.k] : r.k + 1, t: r.t, m: r.m, c: r.c, sT, sM, sC, X, ci: 100 + 15 * X };
+    });
+
+    const ciVals = persons.map(p => p.scores.ci);
+    const sorted = [...ciVals].sort((a, b) => a - b);
+    const q1 = quantile(sorted, 0.25), q3 = quantile(sorted, 0.75), iqr = q3 - q1;
+    const inFence = sorted.filter(v => v >= q1 - 1.5 * iqr && v <= q3 + 1.5 * iqr);
+    const summary = {
+      n: N, sheetCount: K, meanT: mean(T), meanM: mean(M), meanC: mean(C),
+      ci: {
+        mean: mean(ciVals), sd: sdev(ciVals, ddof), median: quantile(sorted, 0.5), min: sorted[0], max: sorted[sorted.length - 1],
+        q1, q3, whiskerLow: inFence[0], whiskerHigh: inFence[inFence.length - 1],
+        outliers: ciVals.filter(v => v < q1 - 1.5 * iqr || v > q3 + 1.5 * iqr)
+      }
+    };
+    return { errors: [], warnings: res.warnings, ddof, N, K, weights: WEIGHTS, persons, summary, norm: { T: nT, M: nM, C: nC, CV: nCV }, sheetNorm: { T: rT, M: rM, C: rC } };
+  }
+
+  /* ---------- 時間の表記（例：90.50秒 = 1:30.50） ---------- */
+  function fmtTime(sec, d = 2) {
+    if (typeof sec !== 'number' || !Number.isFinite(sec) || sec < 0) return '—';
+    const f = Math.pow(10, d);
+    const total = Math.round(sec * f);
+    const per = 60 * f;
+    const h = Math.floor(total / (60 * per));
+    const m = Math.floor((total - h * 60 * per) / per);
+    const s = (total - h * 60 * per - m * per) / f;
+    const ss = s.toFixed(d).padStart(d ? d + 3 : 2, '0');
+    return h > 0 ? `${h}:${String(m).padStart(2, '0')}:${ss}` : `${m}:${ss}`;
+  }
+
+  /* ---------- 1人1ファイル（1枚が1行の縦持ち）形式 ---------- */
+  const NO_RE = /^(枚数|枚目|回数|回目|番号|no\.?|sheet|page|ページ|#)$/;
+  const TOTAL_RE = /総|合計|累計|累積|total|cumul|sum/;
+  const NAME_RE = /^(記録者|名前|氏名|被験者|参加者|人物|人物id|id|name|recorder)$/;
+  const TOTAL_LABELS = [
+    { k: 'T', label: '総合タイム', re: /^(総合タイム|合計タイム|総タイム|タイム総合|タイム合計|総合時間|合計時間)$/ },
+    { k: 'C', label: '総修正数', re: /^(総修正数|修正数合計|合計修正数|総修正|修正合計)$/ },
+    { k: 'M', label: '総ミス数', re: /^(総ミス数|ミス数合計|合計ミス数|総ミス|ミス合計)$/ }
+  ];
+  // 数字を含む見出し（1枚目タイム など）は「横持ち」形式なのでここでは扱わない
+  function classifyLongHeader(raw) {
+    if (isEmptyCell(raw)) return null;
+    const h = normText(raw);
+    if (!h || /\d/.test(h)) return null;
+    if (NO_RE.test(h)) return { role: 'no' };
+    const total = TOTAL_RE.test(h);
+    if (/修正|訂正|correct|fix|revis/.test(h)) return { role: total ? 'skipC' : 'C' };
+    if (/ミス|誤|間違|まちがい|エラー|error|miss|mistake|wrong/.test(h)) return { role: total ? 'skipM' : 'M' };
+    if (/タイム|時間|秒|time|sec/.test(h)) return { role: total ? 'cum' : 'T' };
+    return null;
+  }
+  function findLongHeader(aoa) {
+    const lim = Math.min(aoa.length, 15);
+    for (let r = 0; r < lim; r++) {
+      const row = Array.from(aoa[r] || []);
+      const cols = {}, dup = [];
+      row.forEach((h, c) => {
+        const k = classifyLongHeader(h);
+        if (!k) return;
+        if (cols[k.role] === undefined) cols[k.role] = c;
+        else if (!k.role.startsWith('skip')) dup.push(String(h).trim());
+      });
+      if (cols.T !== undefined && cols.M !== undefined && cols.C !== undefined) return { row: r, cols, dup, headers: row };
+    }
+    return null;
+  }
+  function detectFormat(aoa) {
+    if (!Array.isArray(aoa) || !aoa.length) return 'wide';
+    if (findHeaderRow(aoa).hits >= 3) return 'wide';
+    return findLongHeader(aoa) ? 'long' : 'wide';
+  }
+  const isSheetNo = v => (typeof v === 'number' ? Number.isInteger(v) && v >= 1 : (typeof v === 'string' && /^\d+(枚目|枚|回目|回)?$/.test(v.normalize('NFKC').trim())));
+  const parseNo = v => (typeof v === 'number' ? v : parseInt(String(v).normalize('NFKC'), 10));
+  // 「記録者」「総合タイム」などの見出しを探し、その右または下にある値を返す
+  function findLabelValue(aoa, test, rowOff, colOff, belowFirst, skipRow) {
+    for (let r = 0; r < aoa.length; r++) {
+      if (skipRow && skipRow(r)) continue;
+      const row = aoa[r] || [];
+      for (let c = 0; c < row.length; c++) {
+        const v = row[c];
+        if (typeof v !== 'string' || !test(normText(v))) continue;
+        const below = (aoa[r + 1] || [])[c];
+        const belowHit = () => (isEmptyCell(below) ? null : { value: below, addr: colLetter(c + colOff) + (r + 2 + rowOff) });
+        const rightHit = () => {
+          for (let d = 1; d <= 3; d++) { const x = row[c + d]; if (!isEmptyCell(x)) return { value: x, addr: colLetter(c + d + colOff) + (r + 1 + rowOff) }; }
+          return null;
+        };
+        const hit = belowFirst ? (belowHit() || rightHit()) : (rightHit() || belowHit());
+        if (hit) return hit;
+      }
+    }
+    return null;
+  }
+  function nameFromFileName(fn) {
+    const base = String(fn || '').replace(/\.[^.]+$/, '');
+    const seg = base.split(/[_＿\s　]+/).filter(s => s && !/^\d+$/.test(s));
+    return seg.length ? seg[0] : (base || '無名');
+  }
+
+  function parseLong(aoa, opts = {}) {
+    const rowOff = opts.rowOffset || 0, colOff = opts.colOffset || 0;
+    const out = { format: 'long', errors: [], warnings: [], persons: [], columns: null, sheetNos: [], stats: { blankRows: 0, blankCells: 0, badCells: 0 }, outliers: [], meta: {} };
+    const err = (code, title, detail, hint) => out.errors.push({ code, title, detail, hint: hint || '' });
+    const hdr = findLongHeader(aoa);
+    if (!hdr) {
+      err('columns', '必要なデータ列が見つかりません', '「タイム」「ミス数」「修正数」の列を判定できませんでした。', '見出し行に「枚数」「タイム」「修正数」「ミス数」を入れてください。');
+      return out;
+    }
+    const { cols } = hdr;
+    const L = c => colLetter(c + colOff);
+    const hName = c => String(hdr.headers[c]).trim();
+    if (hdr.dup.length) out.warnings.push(`同じ意味の列が複数ありました（${hdr.dup.join('、')}）。左にある列だけを使います。`);
+
+    // データの行：見出しの下から、枚数の欄が数字でなくなるところまで
+    const dataRows = [];
+    let r = hdr.row + 1;
+    for (; r < aoa.length; r++) {
+      const row = aoa[r] || [];
+      const isData = cols.no !== undefined ? isSheetNo(row[cols.no]) : ['T', 'M', 'C'].some(k => !isEmptyCell(row[cols[k]]));
+      if (!isData) break;
+      dataRows.push(r);
+    }
+    if (!dataRows.length) {
+      err('nodata', 'タイムのデータがありません', '見出しの下に、枚数ごとのデータの行が見つかりませんでした。', '見出しの次の行から、1枚1行で入力してください。');
+      return out;
+    }
+    // 見出し行〜データの行は「ラベル探し」の対象外（見出しの「タイム(総合)」を合計欄と取り違えないため）
+    const lastData = dataRows[dataRows.length - 1];
+    const skipTable = rr => rr >= hdr.row && rr <= lastData;
+    let stray = 0;
+    for (let rr = r; rr < aoa.length; rr++) {
+      const row = aoa[rr] || [];
+      if ((cols.no === undefined || isSheetNo(row[cols.no])) && toNumber(row[cols.T], 'T').s === 'ok') stray++;
+    }
+    if (stray) out.warnings.push(`データの表のあとにも、枚数とタイムが入った行が ${stray} 行あります。空白の行で表が分かれていませんか？ そこから下は読み込んでいません。`);
+
+    const sheets = [], problems = [], nos = [];
+    dataRows.forEach((rowIdx, i) => {
+      const row = aoa[rowIdx] || [];
+      const excelRow = rowIdx + rowOff + 1;
+      const cells = ['T', 'M', 'C'].map(k => ({ k, raw: row[cols[k]], p: toNumber(row[cols[k]], k), addr: L(cols[k]) + excelRow, header: hName(cols[k]) }));
+      nos.push(cols.no !== undefined ? parseNo(row[cols.no]) : i + 1);
+      let ok = true;
+      cells.forEach(c => {
+        if (c.p.s === 'empty') { problems.push({ type: 'blank', message: `${c.addr}（${c.header}）が空欄です` }); out.stats.blankCells++; ok = false; }
+        else if (c.p.s === 'invalid') { problems.push({ type: 'invalid', message: `${c.addr}（${c.header}）が数値・時間として読めません：「${String(c.raw).slice(0, 20)}」${c.k === 'T' ? '（例：1:30.50 または 90.5）' : ''}` }); out.stats.badCells++; ok = false; }
+        else if (c.k === 'T' && !(c.p.v > 0)) { problems.push({ type: 'range', message: `${c.addr}（${c.header}）のタイムが0以下です` }); out.stats.badCells++; ok = false; }
+        else if (c.k !== 'T' && c.p.v < 0) { problems.push({ type: 'range', message: `${c.addr}（${c.header}）がマイナスです：${c.p.v}` }); out.stats.badCells++; ok = false; }
+      });
+      sheets.push(ok ? { t: cells[0].p.v, m: cells[1].p.v, c: cells[2].p.v } : null);
+    });
+    const noSet = new Set(nos);
+    if (noSet.size !== nos.length) out.warnings.push('「' + hName(cols.no) + '」の番号に重複があります。並んでいる順番どおりに読み込みます。');
+    else if (nos.some((n, i) => i > 0 && n !== nos[i - 1] + 1)) out.warnings.push('枚数の番号が連続していません（' + nos.join(', ') + '）。並んでいる順番どおりに読み込みます。');
+    out.sheetNos = nos;
+
+    // 検算：累計の列、合計の欄が、1枚ごとの値と合っているか
+    const totals = { T: 0, M: 0, C: 0 };
+    if (!problems.length) {
+      sheets.forEach(s => { totals.T += s.t; totals.M += s.m; totals.C += s.c; });
+      if (cols.cum !== undefined) {
+        let run = 0; const bad = [];
+        dataRows.forEach((rowIdx, i) => {
+          run += sheets[i].t;
+          const c = toNumber((aoa[rowIdx] || [])[cols.cum], 'T');
+          if (c.s === 'ok' && Math.abs(c.v - run) > 0.02) bad.push(L(cols.cum) + (rowIdx + rowOff + 1));
+        });
+        if (bad.length) out.warnings.push(`「${hName(cols.cum)}」の累計が、1枚ごとのタイムを足した値と合わない行があります（${bad.slice(0, 5).join('、')}${bad.length > 5 ? ' ほか' : ''}）。分析は1枚ごとのタイムで行います。`);
+        else out.meta.cumChecked = true;
+      }
+      TOTAL_LABELS.forEach(t => {
+        const f = findLabelValue(aoa, s => t.re.test(s), rowOff, colOff, true, skipTable);
+        if (!f) return;
+        const n = toNumber(f.value, t.k);
+        if (n.s !== 'ok') return;
+        if (Math.abs(n.v - totals[t.k]) > (t.k === 'T' ? 0.02 : 1e-9)) {
+          const show = x => (t.k === 'T' ? fmtTime(x) : String(x));
+          out.warnings.push(`ファイル内の「${t.label}」欄（${f.addr}）は ${show(n.v)} ですが、1枚ごとの合計は ${show(totals[t.k])} です。入力ミスがないか確認してください。分析は1枚ごとの値で行います。`);
+        } else out.meta.totalsChecked = (out.meta.totalsChecked || 0) + 1;
+      });
+    }
+
+    // 記録者名
+    const nf = findLabelValue(aoa, s => NAME_RE.test(s), rowOff, colOff, false, skipTable);
+    let name = nf && !isEmptyCell(nf.value) ? String(nf.value).trim() : '';
+    if (!name) {
+      name = nameFromFileName(opts.fileName);
+      out.warnings.push(`「記録者」の欄が見つからなかったため、ファイル名から「${name}」と推定しました。`);
+    }
+
+    const used = new Set(Object.values(cols));
+    // 文章の欄（感想・コメントなど）は黙って読み飛ばす。それ以外の使わなかった列だけ知らせる
+    const unused = [];
+    hdr.headers.forEach((h, c) => { if (!used.has(c) && !isEmptyCell(h) && !/感想|コメント|備考|メモ|変化/.test(String(h))) unused.push(String(h).trim()); });
+    if (unused.length) out.warnings.push('使わなかった列：' + unused.join('、'));
+
+    const mp = [];
+    if (cols.no !== undefined) mp.push(['枚数', `${L(cols.no)}列「${hName(cols.no)}」`]);
+    mp.push(['タイム', `${L(cols.T)}列「${hName(cols.T)}」`], ['修正', `${L(cols.C)}列「${hName(cols.C)}」`], ['ミス', `${L(cols.M)}列「${hName(cols.M)}」`]);
+    if (cols.cum !== undefined) mp.push(['累計（検算用）', `${L(cols.cum)}列「${hName(cols.cum)}」`]);
+    mp.push(['記録者', nf && name === String(nf.value).trim() ? `${nf.addr}のセル` : 'ファイル名から推定']);
+    mp.push(['データの行', `${dataRows[0] + rowOff + 1}〜${dataRows[dataRows.length - 1] + rowOff + 1}行目（${dataRows.length}枚分）`]);
+    out.columns = { format: 'long', mapping: mp };
+    out.persons.push({ id: name, row: dataRows[0] + rowOff + 1, sheets: problems.length ? null : sheets, problems, sheetNos: nos });
+    return out;
+  }
+
+  // 形式を自動判定して読み込む
+  function parseAny(aoa, opts = {}) {
+    const kind = detectFormat(aoa);
+    const out = kind === 'long' ? parseLong(aoa, opts) : parseTable(aoa, opts);
+    out.format = kind;
+    return out;
+  }
+
+  /* ---------- 複数ファイル・複数人の合流 ---------- */
+  const sheetNosOf = parsed => (parsed.format === 'long' ? (parsed.sheetNos || []) : (parsed.columns ? parsed.columns.groups.map(g => g.sheet) : []));
+  function mergeSources(sources, opts = {}) {
+    const all = [];
+    sources.forEach(s => {
+      const nos = sheetNosOf(s.parsed);
+      s.parsed.persons.forEach(p => all.push({ id: p.id, row: p.row, fileName: s.fileName, sheets: p.sheets, problems: p.problems.slice(), sheetNos: p.sheetNos || nos }));
+    });
+    const seen = new Map();
+    let renamed = 0;
+    all.forEach(p => { const n = (seen.get(p.id) || 0) + 1; seen.set(p.id, n); if (n > 1) { p.id = `${p.id}(${n})`; renamed++; } });
+
+    const okP = all.filter(p => !p.problems.length);
+    const counts = okP.map(p => p.sheets.length);
+    let K = 0, modeCount = 0, minCount = 0;
+    if (counts.length) {
+      minCount = Math.min(...counts);
+      const freq = new Map();
+      counts.forEach(c => freq.set(c, (freq.get(c) || 0) + 1));
+      modeCount = [...freq.entries()].sort((a, b) => b[1] - a[1] || b[0] - a[0])[0][0];
+      K = opts.truncate ? minCount : modeCount;
+    }
+    const mismatch = [], truncated = [];
+    okP.forEach(p => {
+      const len = p.sheets.length;
+      if (len === K) return;
+      if (opts.truncate && len > K) { truncated.push({ id: p.id, from: len, to: K }); p.sheets = p.sheets.slice(0, K); p.sheetNos = (p.sheetNos || []).slice(0, K); }
+      else { mismatch.push({ id: p.id, len, fileName: p.fileName }); p.problems.push({ type: 'count', message: `${len}枚分あります。多くの人の枚数（${K}枚）と違います` }); p.sheets = null; }
+    });
+    const valid = all.filter(p => !p.problems.length);
+    const bad = all.filter(p => p.problems.length);
+    const nos = valid.length && valid[0].sheetNos && valid[0].sheetNos.length >= K ? valid[0].sheetNos.slice(0, K) : Array.from({ length: K }, (_, i) => i + 1);
+    return {
+      all, mismatch, truncated, renamed, K, modeCount, minCount,
+      dataset: { persons: valid.map(p => ({ id: p.id, sheets: p.sheets })), sheetCount: K, sheetNos: nos, excluded: bad.map(p => p.id), hasProblems: bad.length > 0 }
+    };
+  }
+
+  return { WEIGHTS, LABEL, sum, mean, sdev, standardize, quantile, clamp, radarValue, fmt, fmtTime, colLetter, classifyHeader, findHeaderRow, findLongHeader, detectFormat, toNumber, parseTable, parseLong, parseAny, mergeSources, buildDataset, detectOutliers, combine, analyze };
+})();
+if (typeof module !== 'undefined') module.exports = Core;
+
+</script>
+<script>
+/* --- js/util.js --- */
+/* =====================================================================
+ * util.js — 共通の道具・状態（state）・トースト・確認ダイアログ
+ * ===================================================================== */
+'use strict';
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmt = Core.fmt;
+const fm = (x, d = 1) => fmt(x, d).replace('-', '−');
+const rawNum = x => (Number.isFinite(x) ? String(Number(x.toFixed(2))) : '—');
+const r4 = x => (Number.isFinite(x) ? Number(x.toFixed(4)) : null);
+const FONT = '"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic","Meiryo",sans-serif';
+const LIGHT = { card: '#ffffff', ink: '#1b1f3b', muted: '#5b6284', grid: '#dde1f0', accent: '#3d4fe0', accent2: '#7a5af8' };
+const reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+const DEFAULT_SETTINGS = { sd: 'sample', smooth: true, showMean: true, lastPerson: null, colWidths: null, nameInOverall: false, expName: '' };
+
+/* ================= 状態 ================= */
+const state = {
+  sources: [], blocked: false, truncate: false, fileName: '', sheetName: '', excludeProblems: false,
+  dataset: null, result: null, check: null, errors: [],
+  selectedId: null, expName: '', expDate: '', historyId: null,
+  history: [], settings: Object.assign({}, DEFAULT_SETTINGS),
+  table: { key: 'id', dir: 1, q: '' }
+};
+
+/* ================= サイトの名前：「（履歴の名前）の集中度記録サイト」 ================= */
+// 履歴の名前が未入力（空・空白だけ）のときは「集中度記録サイト」
+const DEFAULT_SITE_NAME = '集中度記録サイト';
+const siteName = () => { const n = (state.expName || '').trim(); return n ? `${n}の${DEFAULT_SITE_NAME}` : DEFAULT_SITE_NAME; };
+// 2つの入力欄（上の欄・履歴の欄）と、見出し・タブの題名を、いまの履歴の名前にそろえる
+function syncNameInputs() {
+  ['expName', 'expName2'].forEach(id => { const el = $(id); if (el && document.activeElement !== el) el.value = state.expName || ''; });
+  const t = siteName();
+  document.title = t;
+  const h = $('siteTitle');
+  if (h) h.textContent = t;
+}
+function setExpName(v) {
+  state.expName = String(v == null ? '' : v);
+  state.settings.expName = state.expName; Settings.save();
+  syncNameInputs();
+}
+
+/* ================= 小さな道具 ================= */
+let toastTimer = null;
+function toast(msg, kind) {
+  const t = $('toast');
+  t.textContent = msg; t.className = 'toast' + (kind === 'err' ? ' err' : ''); t.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 3800);
+}
+function ask(message, okLabel) {
+  return new Promise(res => {
+    const d = $('dlg');
+    if (!d.showModal) { res(window.confirm(message)); return; }
+    $('dlgMsg').textContent = message; $('dlgOk').textContent = okLabel || '削除する';
+    let settled = false;
+    const fin = v => { if (!settled) { settled = true; res(v); } };
+    $('dlgOk').onclick = () => { fin(true); d.close(); };
+    $('dlgCancel').onclick = () => { fin(false); d.close(); };
+    d.onclose = () => fin(false);
+    d.showModal();
+  });
+}
+const todayStr = () => { const d = new Date(); const p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`; };
+const slashDate = s => String(s || '').replace(/-/g, '/');
+const safeName = s => String(s || '').replace(/[\\/:*?"<>|\s]+/g, '_').slice(0, 40);
+const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+function withAlpha(hex, a) {
+  const m = /^#([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m) return hex;
+  const n = parseInt(m[1], 16);
+  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+}
+function livePalette() {
+  const cs = getComputedStyle(document.documentElement);
+  const g = (n, d) => (cs.getPropertyValue(n).trim() || d);
+  return { card: g('--card', LIGHT.card), ink: g('--ink', LIGHT.ink), muted: g('--muted', LIGHT.muted), grid: g('--grid', LIGHT.grid), accent: g('--accent', LIGHT.accent), accent2: g('--accent2', LIGHT.accent2) };
+}
+function applyMeters(root) {
+  (root || document).querySelectorAll('[data-pos]').forEach(el => { el.style.left = el.dataset.pos + '%'; });
+}
+
+</script>
+<script>
+/* --- js/storage.js --- */
+/* =====================================================================
+ * storage.js — ブラウザへの保存：設定は localStorage、履歴と最後の分析は IndexedDB
+ * ===================================================================== */
+'use strict';
+/* ================= 保存先（設定：localStorage、履歴：IndexedDB） ================= */
+const Settings = {
+  mem: null,
+  load() {
+    let raw = null;
+    try { raw = localStorage.getItem('hci.settings'); } catch (e) { raw = null; }
+    try { state.settings = Object.assign({}, DEFAULT_SETTINGS, raw ? JSON.parse(raw) : {}); } catch (e) { state.settings = Object.assign({}, DEFAULT_SETTINGS); }
+  },
+  save() { try { localStorage.setItem('hci.settings', JSON.stringify(state.settings)); } catch (e) { /* 保存できない環境では何もしない */ } },
+  clear() { try { localStorage.removeItem('hci.settings'); } catch (e) { /* 同上 */ } state.settings = Object.assign({}, DEFAULT_SETTINGS); }
+};
+
+const Store = (() => {
+  let dbp = null;
+  const mem = { history: new Map(), kv: new Map() };
+  let persistent = true;
+  function open() {
+    if (dbp) return dbp;
+    dbp = new Promise((res, rej) => {
+      try {
+        const req = indexedDB.open('hyakumasu-ci', 1);
+        req.onupgradeneeded = () => { const db = req.result; db.createObjectStore('history', { keyPath: 'id' }); db.createObjectStore('kv'); };
+        req.onsuccess = () => res(req.result);
+        req.onerror = () => rej(req.error);
+        req.onblocked = () => rej(new Error('blocked'));
+      } catch (e) { rej(e); }
+    });
+    return dbp;
+  }
+  async function run(storeName, mode, fn) {
+    const db = await open();
+    return new Promise((res, rej) => {
+      const t = db.transaction(storeName, mode);
+      const s = t.objectStore(storeName);
+      let out;
+      const r = fn(s);
+      if (r) r.onsuccess = () => { out = r.result; };
+      t.oncomplete = () => res(out);
+      t.onerror = () => rej(t.error);
+      t.onabort = () => rej(t.error);
+    });
+  }
+  async function guard(realFn, memFn) {
+    if (persistent) {
+      try { return await realFn(); } catch (e) { persistent = false; }
+    }
+    return memFn();
+  }
+  return {
+    get persistent() { return persistent; },
+    async init() { try { await open(); } catch (e) { persistent = false; } },
+    listHistory: () => guard(() => run('history', 'readonly', s => s.getAll()), () => [...mem.history.values()]),
+    putHistory: rec => guard(() => run('history', 'readwrite', s => s.put(rec)), () => { mem.history.set(rec.id, rec); }),
+    deleteHistory: id => guard(() => run('history', 'readwrite', s => s.delete(id)), () => { mem.history.delete(id); }),
+    clearHistory: () => guard(() => run('history', 'readwrite', s => s.clear()), () => { mem.history.clear(); }),
+    getKV: key => guard(() => run('kv', 'readonly', s => s.get(key)), () => mem.kv.get(key)),
+    setKV: (key, val) => guard(() => run('kv', 'readwrite', s => s.put(val, key)), () => { mem.kv.set(key, val); }),
+    clearKV: () => guard(() => run('kv', 'readwrite', s => s.clear()), () => { mem.kv.clear(); })
+  };
+})();
+
+let persistTimer = null;
+function persistSession() {
+  clearTimeout(persistTimer);
+  persistTimer = setTimeout(() => {
+    if (!state.dataset || !state.result || state.result.errors.length) return;
+    Store.setKV('session', {
+      dataset: state.dataset, check: state.check, fileName: state.fileName, sheetName: state.sheetName,
+      expName: state.expName, expDate: state.expDate, selectedId: state.selectedId, historyId: state.historyId
+    }).catch(() => {});
+  }, 300);
+}
+
+</script>
+<script>
+/* --- js/excel-io.js --- */
+/* =====================================================================
+ * excel-io.js — Excel（.xlsx）の読み込み：SheetJS を使ってシートを「2次元の表」にする
+ * ===================================================================== */
+'use strict';
+/* ================= Excel 読み込み ================= */
+const ExcelIO = {
+  async load(file) {
+    const name = file.name || '';
+    if (!/\.xlsx$/i.test(name)) {
+      throw { title: 'Excelファイル（.xlsx）ではありません', detail: `「${name}」は .xlsx 形式ではありません。`, hint: '古い形式（.xls）やCSVの場合は、Excelで「名前を付けて保存」から「Excelブック（.xlsx）」を選んで保存し直してください。' };
+    }
+    if (file.size > 25 * 1024 * 1024) throw { title: 'ファイルが大きすぎます', detail: '25MBを超えるファイルは読み込めません。', hint: '不要なシートや画像を削除してから、もう一度試してください。' };
+    const buf = await file.arrayBuffer();
+    const u8 = new Uint8Array(buf);
+    if (u8.length < 4 || u8[0] !== 0x50 || u8[1] !== 0x4b) {
+      throw { title: 'ファイルを開けません', detail: '拡張子は .xlsx ですが、中身がExcelブックではないようです（壊れている、パスワードが付いている、名前だけ変えたファイル、などが考えられます）。', hint: 'Excelで開いて、パスワードを外して .xlsx として保存し直してみてください。' };
+    }
+    let wb;
+    try { wb = XLSX.read(buf, { type: 'array' }); }
+    catch (e) { throw { title: 'ファイルを読み込めませんでした', detail: 'Excelファイルの解析でエラーが出ました。', hint: 'Excelで開き直して保存し直してから、もう一度試してください。' }; }
+    if (!wb.SheetNames || !wb.SheetNames.length) throw { title: 'シートがありません', detail: 'このファイルにはシートがありません。', hint: '' };
+    return wb;
+  },
+  aoa(wb, sheetName) {
+    const ws = wb.Sheets[sheetName];
+    if (!ws || !ws['!ref']) return { aoa: [], rowOffset: 0, colOffset: 0 };
+    const range = XLSX.utils.decode_range(ws['!ref']);
+    const aoa = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: null, blankrows: true });
+    // 「時刻」の表示形式（例 mm:ss.00）のセルは、Excelの中では「1日を1とした小数」で入っている。秒に直す。
+    if (XLSX.utils.encode_cell) {
+      for (let i = 0; i < aoa.length; i++) {
+        const row = aoa[i];
+        if (!row) continue;
+        for (let j = 0; j < row.length; j++) {
+          if (typeof row[j] !== 'number') continue;
+          const cell = ws[XLSX.utils.encode_cell({ r: range.s.r + i, c: range.s.c + j })];
+          if (cell && cell.t === 'n' && typeof cell.z === 'string' && cell.z.includes(':') && /[hms]/i.test(cell.z)) row[j] = Math.round(cell.v * 86400 * 100) / 100;
+        }
+      }
+    }
+    return { aoa, rowOffset: range.s.r, colOffset: range.s.c };
+  },
+  defaultSheet(wb) {
+    for (const n of wb.SheetNames) {
+      const { aoa } = ExcelIO.aoa(wb, n);
+      if (aoa.length && (Core.findHeaderRow(aoa).hits >= 3 || Core.findLongHeader(aoa))) return n;
+    }
+    return wb.SheetNames[0];
+  }
+};
+
+</script>
+<script>
+/* --- js/import-flow.js --- */
+/* =====================================================================
+ * import-flow.js — 取り込みの流れ：複数ファイル → 解析 → 合流 → 分析 → 画面更新
+ * ===================================================================== */
+'use strict';
+/* ================= 取り込みの流れ（複数ファイル対応） ================= */
+let srcSeq = 0;
+function parseSource(src) {
+  const { aoa, rowOffset, colOffset } = ExcelIO.aoa(src.wb, src.sheetName);
+  src.parsed = Core.parseAny(aoa, { rowOffset, colOffset, fileName: src.fileName });
+  src.format = src.parsed.format;
+}
+function updateSheetPick() {
+  const s = state.sources.length === 1 ? state.sources[0] : null;
+  const show = !!(s && s.wb && s.wb.SheetNames.length > 1);
+  $('sheetPick').hidden = !show;
+  if (show) { $('sheetSel').innerHTML = s.wb.SheetNames.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join(''); $('sheetSel').value = s.sheetName; }
+}
+// 履歴の名前は利用者が入力するもの（自動では入れない）。日付だけ、読み込んだ日にする
+function autoExpDate() { state.expDate = todayStr(); }
+async function handleFiles(fileList) {
+  const files = Array.from(fileList || []);
+  if (!files.length) return;
+  $('restoreNote').innerHTML = '';
+  for (const f of files) {
+    const src = { key: 's' + (++srcSeq), fileName: f.name, sheetName: '', format: '', parsed: null, wb: null, error: null };
+    try {
+      src.wb = await ExcelIO.load(f);
+      src.sheetName = ExcelIO.defaultSheet(src.wb);
+      parseSource(src);
+    } catch (e) {
+      src.error = { title: e.title || '読み込みに失敗しました', detail: e.detail || String((e && e.message) || e), hint: e.hint || '' };
+    }
+    const i = state.sources.findIndex(s => s.fileName === f.name);
+    if (i >= 0) state.sources[i] = src; else state.sources.push(src);
+  }
+  state.excludeProblems = false; state.truncate = false; state.historyId = null;
+  autoExpDate();
+  rebuild();
+}
+function mappingOf(p) {
+  if (p.format === 'long') return p.columns.mapping;
+  const c = p.columns;
+  const rows = [['人物ID', `${c.idLetter}列「${c.idHeader}」`]];
+  c.groups.forEach(g => rows.push([`${g.sheet}枚目`, `タイム：${g.T.letter}列「${g.T.header}」／ミス：${g.M.letter}列「${g.M.header}」／修正：${g.C.letter}列「${g.C.header}」`]));
+  return rows;
+}
+function makeCheck(srcs, merged) {
+  const multi = srcs.length > 1;
+  const files = srcs.map(s => {
+    const base = { key: s.key, fileName: s.fileName, sheetName: s.sheetName };
+    if (s.error) return Object.assign(base, { ok: false, format: '', error: s.error, people: 0, badPeople: 0, single: null, mapping: [] });
+    const p = s.parsed;
+    if (p.errors.length) return Object.assign(base, { ok: false, format: p.format, error: { title: p.errors[0].title, detail: p.errors.map(e => e.detail).join(' '), hint: p.errors[0].hint || '' }, people: 0, badPeople: 0, single: null, mapping: [] });
+    let single = null;
+    if (p.persons.length === 1) {
+      const q = p.persons[0], sh = q.sheets;
+      single = { id: q.id, k: sh ? sh.length : null, T: sh ? Core.sum(sh.map(x => x.t)) : null, M: sh ? Core.sum(sh.map(x => x.m)) : null, C: sh ? Core.sum(sh.map(x => x.c)) : null };
+    }
+    return Object.assign(base, { ok: true, format: p.format, people: p.persons.length, badPeople: p.persons.filter(q => q.problems.length).length, single, mapping: mappingOf(p) });
+  });
+  const good = srcs.filter(s => s.parsed && !s.parsed.errors.length);
+  const badPersons = merged ? merged.all.filter(p => p.problems.length) : [];
+  const warnings = [];
+  good.forEach(s => s.parsed.warnings.forEach(w => warnings.push(multi ? `「${s.fileName}」${w}` : w)));
+  if (merged) {
+    if (merged.renamed) warnings.push(`同じ名前（ID）が複数ありました（${merged.renamed}件）。後ろのものに (2) などを付けて区別しています。`);
+    if (merged.truncated.length) warnings.push(`枚数をそろえるため、${merged.truncated.length}人のデータの後ろの枚を使っていません。`);
+  }
+  const outliers = merged && merged.dataset.persons.length ? Core.detectOutliers(merged.dataset.persons, merged.dataset.sheetNos) : [];
+  return {
+    files, people: merged ? merged.dataset.persons.length : 0, peopleRaw: merged ? merged.all.length : 0,
+    sheetCount: merged ? merged.K : 0, sheetNos: merged ? merged.dataset.sheetNos : [],
+    blankCells: good.reduce((a, s) => a + s.parsed.stats.blankCells, 0), badCells: good.reduce((a, s) => a + s.parsed.stats.badCells, 0),
+    problemCount: badPersons.length,
+    problemPersons: badPersons.slice(0, 60).map(p => ({ id: p.id, row: p.row, fileName: multi ? p.fileName : '', messages: p.problems.slice(0, 6).map(x => x.message), more: Math.max(0, p.problems.length - 6) })),
+    mismatch: merged ? merged.mismatch.length : 0, modeCount: merged ? merged.modeCount : 0, minCount: merged ? merged.minCount : 0,
+    excluded: merged ? merged.dataset.excluded : [], outliers: outliers.slice(0, 40), outlierCount: outliers.length, warnings
+  };
+}
+function rebuild() {
+  const srcs = state.sources;
+  state.errors = []; state.blocked = false;
+  state.fileName = srcs.length === 1 ? srcs[0].fileName : (srcs.length ? `${srcs.length}件のファイル` : '');
+  updateSheetPick();
+  if (!srcs.length) { state.dataset = null; state.result = null; state.check = null; render(); return; }
+  const good = srcs.filter(s => s.parsed && !s.parsed.errors.length);
+  const merged = good.length ? Core.mergeSources(good.map(s => ({ fileName: s.fileName, parsed: s.parsed })), { truncate: state.truncate }) : null;
+  state.check = makeCheck(srcs, merged);
+  srcs.filter(s => s.error || (s.parsed && s.parsed.errors.length)).forEach(s => {
+    const e = s.error || { title: s.parsed.errors[0].title, detail: s.parsed.errors.map(x => x.detail).join(' '), hint: s.parsed.errors[0].hint };
+    state.errors.push({ kind: 'err', title: `「${s.fileName}」を読み込めませんでした：${e.title}`, detail: e.detail, hint: e.hint });
+  });
+  if (!merged || !merged.all.length) { state.dataset = null; state.result = null; render(); return; }
+  if (merged.all.some(p => p.problems.length) && !state.excludeProblems) { state.blocked = true; state.dataset = null; state.result = null; render(); return; }
+  state.dataset = merged.dataset;
+  runAnalysis();
+}
+function runAnalysis() {
+  const res = Core.analyze(state.dataset, state.settings);
+  state.result = res;
+  state.errors = state.errors.filter(e => !e.fromAnalysis);
+  if (res.errors.length) {
+    res.errors.forEach(e => state.errors.push({ kind: 'err', fromAnalysis: true, title: e.title, detail: e.detail, hint: e.hint }));
+  } else {
+    const ids = res.persons.map(p => p.id);
+    state.selectedId = state.selectedId && ids.includes(state.selectedId) ? state.selectedId : (state.settings.lastPerson && ids.includes(state.settings.lastPerson) ? state.settings.lastPerson : ids[0]);
+  }
+  render();
+}
+
+</script>
+<script>
+/* --- js/views-check.js --- */
+/* =====================================================================
+ * views-check.js — エラー表示・「読み込んだデータの確認」カード
+ * ===================================================================== */
+'use strict';
+/* ================= 描画：エラー・確認 ================= */
+function renderErrors() {
+  const el = $('errors');
+  const parts = state.errors.map(e => `<div class="notice ${e.kind === 'warn' ? 'warn' : 'err'}" role="alert"><strong>${esc(e.title)}</strong>${esc(e.detail)}${e.hint ? '<br>対処：' + esc(e.hint) : ''}</div>`);
+  const c = state.check;
+  if (state.blocked && c && c.problemCount) {
+    const shown = c.problemPersons.slice(0, 12);
+    const list = shown.map(p => `<li><b>${esc(p.id)}</b>（${p.fileName ? esc(p.fileName) + '・' : ''}${p.row}行目）<ul>${p.messages.map(m => `<li>${esc(m)}</li>`).join('')}${p.more ? `<li>ほか ${p.more}件</li>` : ''}</ul></li>`).join('');
+    const remain = c.peopleRaw - c.problemCount;
+    const canExclude = remain >= 2;
+    const canTrunc = c.mismatch > 0 && c.minCount >= 1;
+    parts.push(`<div class="notice err" role="alert"><strong>${c.problemCount}人のデータに問題があるため、分析を止めています</strong>空欄・数値以外・枚数のちがいがあると、正しい平均やばらつきが出せません。<ul>${list}</ul>${c.problemCount > shown.length ? `<p>ほか ${c.problemCount - shown.length}人</p>` : ''}
+      <p>対処：Excelを直して読み込み直すか、次のどちらかを選んでください。${canExclude ? '' : '（除くと残りが2人未満になるため、Excelを直す必要があります）'}</p>
+      <div class="btns">${canExclude ? `<button class="btn primary" id="exclBtn" type="button">問題のある${c.problemCount}人を除いて分析する</button>` : ''}${canTrunc ? `<button class="btn" id="truncBtn" type="button">全員を最小の${c.minCount}枚にそろえて分析する（それより後ろの枚は使いません）</button>` : ''}</div></div>`);
+  }
+  el.innerHTML = parts.join('');
+  const b = $('exclBtn');
+  if (b) b.addEventListener('click', () => { state.excludeProblems = true; rebuild(); });
+  const t = $('truncBtn');
+  if (t) t.addEventListener('click', () => { state.truncate = true; rebuild(); });
+}
+
+const FORMAT_LABEL = { long: '1人1ファイル（1枚が1行）', wide: '全員まとめ（1人が1行）' };
+function renderCheck() {
+  const c = state.check, sec = $('check');
+  if (!c) { sec.hidden = true; return; }
+  sec.hidden = false;
+  const files = c.files || [];
+  const failed = files.filter(f => !f.ok).length;
+  const tile = (k, v, s, bad) => `<div class="tile${bad ? ' bad' : ''}"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s || '&nbsp;'}</div></div>`;
+  const tiles = [
+    tile('人数', `${c.people}人`, c.peopleRaw !== c.people ? `読み込み${c.peopleRaw}人のうち` : ''),
+    tile('1人あたりの枚数', `${c.sheetCount}枚`, c.sheetNos && c.sheetNos.length ? c.sheetNos[0] + '〜' + c.sheetNos[c.sheetNos.length - 1] + '枚目' : ''),
+    tile('読み込んだファイル', `${files.length}件`, failed ? `うち${failed}件は読めませんでした` : (files.length ? 'すべて読めました' : ''), failed > 0),
+    tile('欠損データ', `${c.blankCells}件`, c.blankCells ? '空欄のセル' : '空欄なし', c.blankCells > 0),
+    tile('異常値', `${c.outlierCount}件`, c.outlierCount ? '要確認（下の一覧）' : '目立つ異常なし', c.outlierCount > 0)
+  ].join('');
+  const notes = [];
+  if (state.dataset && c.excluded && c.excluded.length) notes.push(`<div class="notice warn"><strong>分析から除いた人（${c.excluded.length}人）</strong>${esc(c.excluded.slice(0, 30).join('、'))}${c.excluded.length > 30 ? ' ほか' : ''}</div>`);
+  if (c.warnings && c.warnings.length) notes.push(`<div class="notice warn"><strong>読み込み時の注意</strong><ul>${c.warnings.map(w => `<li>${esc(w)}</li>`).join('')}</ul></div>`);
+  if (c.outlierCount) notes.push(`<div class="notice warn"><strong>異常値の可能性（${c.outlierCount}件）</strong>入力ミスかどうかを確認してください。分析には含めています。<ul>${c.outliers.map(o => `<li>${esc(o.text)}</li>`).join('')}</ul>${c.outlierCount > c.outliers.length ? `<p>ほか ${c.outlierCount - c.outliers.length}件</p>` : ''}</div>`);
+  if (!c.problemCount && !failed && !c.blankCells) notes.push('<div class="notice ok">空欄や数値・時間として読めないデータはありませんでした。</div>');
+
+  let fileTbl = '';
+  if (files.length) {
+    const canRemove = k => state.sources.some(s => s.key === k);
+    const rows = files.map(f => {
+      let who = '—', k = '—', t = '—', m = '—', cc = '—';
+      if (f.ok && f.single) { who = esc(f.single.id); k = f.single.k == null ? '—' : f.single.k + '枚'; t = f.single.T == null ? '—' : Core.fmtTime(f.single.T); m = f.single.M == null ? '—' : rawNum(f.single.M); cc = f.single.C == null ? '—' : rawNum(f.single.C); }
+      else if (f.ok) who = `${f.people}人分`;
+      const status = !f.ok ? `✕ ${esc(f.error.title)}` : (f.badPeople ? `△ ${f.badPeople}人に問題あり` : '✓ 読めました');
+      return `<tr><td>${esc(f.fileName)}</td><td>${esc(FORMAT_LABEL[f.format] || '—')}</td><td>${who}</td><td>${k}</td><td>${t}</td><td>${m}</td><td>${cc}</td><td>${status}</td><td>${canRemove(f.key) ? `<button class="btn small danger" type="button" data-rm="${esc(f.key)}">外す</button>` : ''}</td></tr>`;
+    }).join('');
+    const maps = files.filter(f => f.ok).slice(0, 6).map(f => `<details class="set"><summary>使用した列：${esc(f.fileName)}</summary><div class="tscroll"><table class="small-tbl lft"><tbody>${f.mapping.map(([a, b]) => `<tr><th>${esc(a)}</th><td>${esc(b)}</td></tr>`).join('')}</tbody></table></div></details>`).join('');
+    const clear = state.sources.length ? `<div class="btns"><button class="btn small" id="clearFiles" type="button">読み込んだファイルをすべて外す</button></div>` : '';
+    fileTbl = `<h3>読み込んだファイル</h3><div class="tscroll"><table class="small-tbl lft"><thead><tr><th>ファイル</th><th>形式</th><th>記録者</th><th>枚数</th><th>総合タイム</th><th>ミス</th><th>修正</th><th>状態</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>${maps}${files.filter(f => f.ok).length > 6 ? '<p class="hint">使用した列の表示は、先頭の6ファイルのみです。</p>' : ''}${clear}`;
+  }
+  $('checkBody').innerHTML = `<p class="hint">分析に使った人：${c.people}人${state.fileName ? '／' + esc(state.fileName) : ''}</p><div class="tiles">${tiles}</div>${notes.join('')}${fileTbl}`;
+}
+
+</script>
+<script>
+/* --- js/views-person.js --- */
+/* =====================================================================
+ * views-person.js — 個人の分析：5つの数値・1枚ごとの表・「計算方法を見る」
+ * ===================================================================== */
+'use strict';
+/* ================= 描画：個人の分析 ================= */
+const cur = () => state.result.persons.find(p => p.id === state.selectedId) || state.result.persons[0];
+const METRIC_DEFS = [
+  { key: 'ci', label: '集中度', desc: '総合的な集中度指数', main: true },
+  { key: 'speed', label: '速度', desc: '計算を行う速度' },
+  { key: 'accuracy', label: '正確性', desc: 'ミスの少なさ' },
+  { key: 'correction', label: '修正能力', desc: 'ミスへの対応を表す指標' },
+  { key: 'stability', label: '安定性', desc: '1枚ごとのタイムの安定性' }
+];
+function reasonFor(key, p, res) {
+  const n = res.norm;
+  const diffWord = (d, hi, lo) => (Math.abs(d) < 0.05 ? 'ほぼ平均' : (d < 0 ? lo : hi));
+  if (key === 'ci') return '速度40・正確性35・修正15・安定10 の割合で合成';
+  if (key === 'speed') { if (n.T.degenerate) return '全員同じ値のため差がつかず、平均（100）扱い'; const d = p.T - n.T.mean; return `合計 ${Core.fmtTime(p.T)}（平均${Core.fmtTime(n.T.mean)}より ${diffWord(d, rawNum(Math.abs(d)) + '秒 遅い', rawNum(Math.abs(d)) + '秒 速い')}）`; }
+  if (key === 'accuracy') { if (n.M.degenerate) return '全員同じ値のため差がつかず、平均（100）扱い'; return `合計ミス ${rawNum(p.M)}回（平均${rawNum(n.M.mean)}回）`; }
+  if (key === 'correction') { if (n.C.degenerate) return '全員同じ値のため差がつかず、平均（100）扱い'; return `合計修正 ${rawNum(p.C)}回（平均${rawNum(n.C.mean)}回）。少ないほど高得点`; }
+  if (key === 'stability') { if (p.cv === null) return '1枚だけなので計算できません'; if (n.CV.degenerate) return '全員同じ値のため差がつかず、平均（100）扱い'; return `タイムのばらつき ${fm(p.cv * 100, 1)}%（平均${fm(n.CV.mean * 100, 1)}%）。小さいほど高得点`; }
+  return '';
+}
+function renderMetrics(p) {
+  const res = state.result;
+  $('metrics').innerHTML = METRIC_DEFS.map(d => {
+    const v = p.scores[d.key];
+    const pos = v === null ? 50 : Core.radarValue(v);
+    return `<li class="${d.main ? 'main' : ''}"><div class="mv" aria-label="${d.label} ${fmt(v, 1)}">${fmt(v, 1)}</div><div class="mt"><strong>${d.label}</strong><span class="d">${d.desc}</span><em class="why">${esc(reasonFor(d.key, p, res))}</em><div class="meter" aria-hidden="true"><i data-pos="${pos}"></i></div></div></li>`;
+  }).join('');
+  applyMeters($('metrics'));
+}
+function renderSheetTable(p) {
+  const rows = p.sheets.map(s => `<tr><td>${s.no}枚目</td><td>${Core.fmtTime(s.t)}<span class="sub">（${rawNum(s.t)}秒）</span></td><td>${rawNum(s.m)}</td><td>${rawNum(s.c)}</td><td>${fm(s.sT, 2)}</td><td>${fm(s.sM, 2)}</td><td>${fm(s.sC, 2)}</td><td><b>${fm(s.ci, 1)}</b></td></tr>`).join('');
+  $('sheetTbl').innerHTML = `<thead><tr><th>枚数</th><th>タイム</th><th>ミス</th><th>修正</th><th>速度のスコア</th><th>正確性のスコア</th><th>修正のスコア</th><th>集中度</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><td>合計・個人の集中度</td><td>${Core.fmtTime(p.T)}</td><td>${rawNum(p.M)}</td><td>${rawNum(p.C)}</td><td colspan="3"></td><td>${fm(p.scores.ci, 1)}</td></tr></tfoot>`;
+}
+function renderNotices() {
+  const w = state.result.warnings;
+  $('notices').innerHTML = w.map(x => `<div class="notice warn">${esc(x)}</div>`).join('');
+}
+function renderPersonSelect() {
+  const sel = $('personSel');
+  sel.innerHTML = state.result.persons.map(p => `<option value="${esc(p.id)}">${esc(p.id)}</option>`).join('');
+  sel.value = state.selectedId;
+}
+function selectPerson(id) {
+  if (!state.result || !state.result.persons.some(p => p.id === id)) return;
+  state.selectedId = id; state.settings.lastPerson = id; Settings.save();
+  $('personSel').value = id;
+  renderPerson(); persistSession();
+}
+function renderPerson() {
+  const p = cur(); state.selectedId = p.id;
+  renderNotices(); renderMetrics(p); drawCharts(p); renderSheetTable(p);
+  if (!$('method').hidden) $('method').innerHTML = methodHTML(p);
+  document.querySelectorAll('#dataTbl tbody tr').forEach(tr => tr.classList.toggle('sel', tr.dataset.id === p.id));
+  if (state.result) { renderBox(); renderOverallCharts(); }
+}
+
+/* ================= 描画：計算方法 ================= */
+function methodHTML(p) {
+  const res = state.result, n = res.norm, ddofTxt = res.ddof === 1 ? '標本標準偏差（人数−1で割る）' : '母標準偏差（人数で割る）';
+  const line = (sym, nameJa, val, nn, z, s, unit) => {
+    const head = `<p class="f">Z_${sym} = (${sym} − 平均${sym}) ÷ SD_${sym}</p>`;
+    const body = nn.degenerate
+      ? `<p>全員の${nameJa}が同じ値のため SD_${sym} = 0 → Z_${sym} = 0 として扱います</p>`
+      : `<p>= (${fm(val, 2)} − ${fm(nn.mean, 2)}) ÷ ${fm(nn.sd, 3)} = <b>${fm(z, 3)}</b></p>`;
+    return `<div class="calc">${head}${body}<p class="f">S_${sym} = −Z_${sym} = <b>${fm(s, 3)}</b>${unit ? '（' + unit + '）' : ''}</p></div>`;
+  };
+  const sumExpr = arr => arr.map(rawNum).join(' + ');
+  const shs = p.sheets;
+  let html = `<div class="sec-head"><h3>「${esc(p.id)}」さんの計算のようす</h3></div>
+  <p class="plain">タイムは「秒」に直して計算します（例：1:30.50 → 90.50秒）。テストの偏差値と同じ考え方です。まず全員の平均と比べて「平均よりどれだけ上か下か」を出し、それを「平均100・幅15」の数字にそろえます。（ばらつきの計算：${ddofTxt}／人数 ${res.N}人）</p>
+
+  <h4>手順1　1人分の合計を出す</h4>
+  <div class="calc"><p class="f">総合タイム T = T1 + T2 + …（秒）</p><p>T = ${sumExpr(p.times)} = <b>${fm(p.T, 2)}</b>（${Core.fmtTime(p.T)}）</p>
+  <p class="f">総合ミス数 M = M1 + M2 + …</p><p>M = ${sumExpr(shs.map(s => s.m))} = <b>${fm(p.M, 2)}</b></p>
+  <p class="f">総合修正数 C = C1 + C2 + …</p><p>C = ${sumExpr(shs.map(s => s.c))} = <b>${fm(p.C, 2)}</b></p></div>
+
+  <h4>手順2　速度スコア（速いほど高評価）</h4>${line('T', '総合タイム', p.T, n.T, p.zT, p.sT, '')}
+  <h4>手順3　正確性スコア（ミスが少ないほど高評価）</h4>${line('M', '総合ミス数', p.M, n.M, p.zM, p.sM, '')}
+  <h4>手順4　修正スコア（修正が少ないほど高評価）</h4>${line('C', '総合修正数', p.C, n.C, p.zC, p.sC, '')}
+  <p class="plain">修正は「ミスに気づいて直せた」という良い面もあるため、参考値として扱います。</p>
+
+  <h4>手順5　安定性スコア（タイムのばらつきが小さいほど高評価）</h4>`;
+  if (p.cv === null) {
+    html += `<div class="calc"><p>1枚だけのデータなので、安定性は計算できません（集中度は残りの3項目で計算します）。</p></div>`;
+  } else {
+    html += `<div class="calc"><p class="f">CV_T = SD(1枚ごとのタイム) ÷ 平均(1枚ごとのタイム)</p>
+      <p>平均 = ${fm(p.meanTime, 3)}、SD = ${fm(p.sdTime, 3)}</p><p>CV_T = ${fm(p.sdTime, 3)} ÷ ${fm(p.meanTime, 3)} = <b>${fm(p.cv, 4)}</b>（${fm(p.cv * 100, 2)}%）</p>
+      <p class="f">Z_CV = (CV_T − 平均CV_T) ÷ SD_CV</p>${n.CV.degenerate ? '<p>全員のCVが同じ値のため Z_CV = 0 として扱います</p>' : `<p>= (${fm(p.cv, 4)} − ${fm(n.CV.mean, 4)}) ÷ ${fm(n.CV.sd, 4)} = <b>${fm(p.zCV, 3)}</b></p>`}
+      <p class="f">S_S = −Z_CV = <b>${fm(p.sS, 3)}</b></p></div>`;
+  }
+  const sSuse = p.sS === null ? null : p.sS;
+  html += `<h4>手順6　集中度指数を合成する</h4>
+  <div class="calc"><p class="f">CI = 100 + 15 × ( 0.40×S_T + 0.35×S_M + 0.15×S_C + 0.10×S_S )</p>
+  <p>= 100 + 15 × ( 0.40×${fm(p.sT, 3)} + 0.35×${fm(p.sM, 3)} + 0.15×${fm(p.sC, 3)} ${sSuse === null ? '' : '+ 0.10×' + fm(sSuse, 3)} )${sSuse === null ? ' ÷ 0.90' : ''}</p>
+  <p>= 100 + 15 × ${fm(p.X, 4)} = <b>${fm(p.scores.ci, 2)}</b></p></div>
+  <h4>手順7　5つの表示用の数値</h4>
+  <div class="calc"><p class="f">速度・正確性・修正能力・安定性 = 100 + 15 × 各スコア　（集中度は手順6の値）</p>
+  <p>速度 = 100 + 15×${fm(p.sT, 3)} = <b>${fm(p.scores.speed, 2)}</b>　／　正確性 = 100 + 15×${fm(p.sM, 3)} = <b>${fm(p.scores.accuracy, 2)}</b></p>
+  <p>修正能力 = 100 + 15×${fm(p.sC, 3)} = <b>${fm(p.scores.correction, 2)}</b>　／　安定性 = ${p.sS === null ? '<b>—</b>' : `100 + 15×${fm(p.sS, 3)} = <b>${fm(p.scores.stability, 2)}</b>`}</p>
+  <p class="f">レーダーチャートの位置 = (数値 − 55) ÷ 90 × 100（55→0、100→50、145→100。範囲外は端に丸める）</p></div>
+  <h4>手順8　1枚ごとの集中度（波のグラフ）</h4>
+  <p class="plain">全員・全枚数のタイム、ミス、修正をひとまとめにして同じ手順で標準化します。安定性は「1人につき1つ」の値なので、1枚ごとには使わず、残りの重み（0.40・0.35・0.15）を合計1に直して合成します。</p>
+  <div class="calc"><p class="f">CI_k = 100 + 15 × ( 0.40×S_T + 0.35×S_M + 0.15×S_C ) ÷ 0.90</p>
+  <p class="f">全枚数の平均・SD：タイム ${fm(res.sheetNorm.T.mean, 2)}・${fm(res.sheetNorm.T.sd, 2)}／ミス ${fm(res.sheetNorm.M.mean, 2)}・${fm(res.sheetNorm.M.sd, 2)}／修正 ${fm(res.sheetNorm.C.mean, 2)}・${fm(res.sheetNorm.C.sd, 2)}</p>
+  ${shs.map(s => `<p>${s.no}枚目：100 + 15 × (0.40×${fm(s.sT, 3)} + 0.35×${fm(s.sM, 3)} + 0.15×${fm(s.sC, 3)}) ÷ 0.90 = <b>${fm(s.ci, 2)}</b></p>`).join('')}</div>
+  <p class="plain">注意：1枚ごとの集中度の平均は、上の「個人の集中度」と一致しません（安定性の有無と、標準化する集団がちがうため）。</p>`;
+  return html;
+}
+
+</script>
+<script>
+/* --- js/charts.js --- */
+/* =====================================================================
+ * charts.js — 画面上のインタラクティブなグラフ（Chart.js：レーダー・集中力の波）
+ * ===================================================================== */
+'use strict';
+/* ================= グラフ ================= */
+const Charts = { radar: null, wave: null };
+const KEYS = ['ci', 'speed', 'accuracy', 'correction', 'stability'];
+function radarConfig(p, pal, big) {
+  const fs = big ? 20 : 14;
+  return {
+    type: 'radar',
+    data: {
+      labels: ['集中度', '速度', '正確性', '修正能力', '安定性'],
+      datasets: [
+        { label: '全体の平均（100）', data: KEYS.map(() => 50), borderColor: pal.muted, borderDash: [5, 5], borderWidth: 1.5, pointRadius: 0, backgroundColor: 'rgba(0,0,0,0)', fill: false },
+        { label: p.id, data: KEYS.map(k => p.radar[k]), borderColor: pal.accent, backgroundColor: withAlpha(pal.accent, 0.22), borderWidth: 3, pointRadius: big ? 6 : 4, pointBackgroundColor: pal.accent, fill: true }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: reduceMotion ? false : { duration: 450 },
+      scales: { r: { min: 0, max: 100, ticks: { stepSize: 25, color: pal.muted, backdropColor: 'rgba(0,0,0,0)', font: { size: fs - 3 } }, grid: { color: pal.grid }, angleLines: { color: pal.grid }, pointLabels: { color: pal.ink, font: { size: fs + 1, weight: '700' } } } },
+      plugins: {
+        legend: { position: 'bottom', labels: { color: pal.ink, font: { size: fs - 1 }, usePointStyle: true } },
+        tooltip: { callbacks: { label(c) { if (c.datasetIndex === 0) return '全体の平均：100'; const v = p.scores[KEYS[c.dataIndex]]; return `${c.label}：${v === null ? '—' : fmt(v, 1)}`; } } }
+      }
+    }
+  };
+}
+function waveConfig(p, pal, big) {
+  const fs = big ? 18 : 13;
+  const labels = p.sheets.map(s => `${s.no}枚目`);
+  const ds = [{
+    label: '集中度', data: p.sheets.map(s => s.ci), borderColor: pal.accent, borderWidth: 3.5,
+    cubicInterpolationMode: state.settings.smooth ? 'monotone' : 'default', tension: 0,
+    fill: 'start',
+    backgroundColor(ctx) {
+      const { chart } = ctx; const area = chart.chartArea;
+      if (!area) return withAlpha(pal.accent, 0.15);
+      const g = chart.ctx.createLinearGradient(0, area.top, 0, area.bottom);
+      g.addColorStop(0, withAlpha(pal.accent, 0.35)); g.addColorStop(1, withAlpha(pal.accent, 0.02));
+      return g;
+    },
+    pointRadius: big ? 7 : 5, pointHoverRadius: 9, pointBackgroundColor: pal.card, pointBorderColor: pal.accent, pointBorderWidth: 3
+  }];
+  if (state.settings.showMean) ds.push({ label: '平均（100）', data: labels.map(() => 100), borderColor: pal.muted, borderDash: [6, 5], borderWidth: 1.5, pointRadius: 0, pointHoverRadius: 0, fill: false });
+  return {
+    type: 'line',
+    data: { labels, datasets: ds },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: reduceMotion ? false : { duration: 500 },
+      interaction: { mode: 'nearest', intersect: false, axis: 'x' },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: pal.muted, font: { size: fs } } },
+        y: { grace: '12%', grid: { color: pal.grid }, ticks: { color: pal.muted, font: { size: fs } }, title: { display: true, text: '集中度', color: pal.ink, font: { size: fs, weight: '700' } } }
+      },
+      plugins: {
+        legend: { position: 'bottom', labels: { color: pal.ink, font: { size: fs }, usePointStyle: true } },
+        tooltip: {
+          filter: item => item.datasetIndex === 0,
+          callbacks: {
+            title: items => items[0].label,
+            label: c => { const s = p.sheets[c.dataIndex]; return [`タイム：${Core.fmtTime(s.t)}（${rawNum(s.t)}秒）`, `ミス：${rawNum(s.m)}`, `修正：${rawNum(s.c)}`, `集中度：${fmt(s.ci, 1)}`]; }
+          }
+        }
+      }
+    }
+  };
+}
+function drawCharts(p) {
+  if (!window.Chart) return;
+  const pal = livePalette();
+  Chart.defaults.font.family = FONT;
+  Chart.defaults.color = pal.ink;
+  if (Charts.radar) Charts.radar.destroy();
+  if (Charts.wave) Charts.wave.destroy();
+  Charts.radar = new Chart($('radarCv'), radarConfig(p, pal, false));
+  Charts.wave = new Chart($('waveCv'), waveConfig(p, pal, false));
+}
+
+</script>
+<script>
+/* --- js/views-overall.js --- */
+/* =====================================================================
+ * views-overall.js — 全体統計・箱ひげ図
+ * ===================================================================== */
+'use strict';
+/* ================= 描画：全体統計 ================= */
+function niceStep(raw) {
+  const p = Math.pow(10, Math.floor(Math.log10(raw)));
+  const f = raw / p;
+  return (f < 1.5 ? 1 : f < 3.5 ? 2 : f < 7.5 ? 5 : 10) * p;
+}
+function boxplotSVG(sum, persons, selId) {
+  const W = 680, H = 190, padL = 28, padR = 28;
+  const vals = persons.map(p => p.scores.ci);
+  const lo = Math.min(...vals), hi = Math.max(...vals), span = (hi - lo) || 1;
+  const min = lo - span * 0.08, max = hi + span * 0.08;
+  const x = v => padL + (v - min) / (max - min) * (W - padL - padR);
+  const step = niceStep((max - min) / 6);
+  let ticks = '';
+  for (let v = Math.ceil(min / step) * step; v <= max + 1e-9; v += step) ticks += `<line class="ax" x1="${x(v)}" x2="${x(v)}" y1="150" y2="156"/><text x="${x(v)}" y="172" text-anchor="middle">${fmt(v, step < 1 ? 1 : 0)}</text>`;
+  const s = sum.ci;
+  const sel = persons.find(p => p.id === selId);
+  const dots = persons.map((p, i) => {
+    const jit = (((i * 37) % 11) - 5) * 1.6;
+    const isOut = p.scores.ci < s.q1 - 1.5 * (s.q3 - s.q1) || p.scores.ci > s.q3 + 1.5 * (s.q3 - s.q1);
+    return isOut ? `<circle class="ol" cx="${x(p.scores.ci)}" cy="${118 + jit}" r="4.5"/>` : `<circle class="pt" cx="${x(p.scores.ci)}" cy="${118 + jit}" r="3.5"/>`;
+  }).join('');
+  let mark = '';
+  if (sel) {
+    const mx = x(sel.scores.ci);
+    const anchor = mx < 70 ? 'start' : (mx > W - 70 ? 'end' : 'middle');
+    mark = `<path class="me" d="M${mx - 7},32 L${mx + 7},32 L${mx},44 Z"/><text class="me" x="${mx}" y="24" text-anchor="${anchor}">${esc(sel.id)}：${fmt(sel.scores.ci, 1)}</text>`;
+  }
+  return `<svg class="box" viewBox="0 0 ${W} ${H}" role="img" aria-label="集中度の箱ひげ図。最小 ${fmt(s.min, 1)}、第1四分位 ${fmt(s.q1, 1)}、中央値 ${fmt(s.median, 1)}、第3四分位 ${fmt(s.q3, 1)}、最大 ${fmt(s.max, 1)}">
+    <line class="ax" x1="${padL}" x2="${W - padR}" y1="150" y2="150"/>${ticks}
+    <line class="wh" x1="${x(s.whiskerLow)}" x2="${x(s.q1)}" y1="72" y2="72"/><line class="wh" x1="${x(s.q3)}" x2="${x(s.whiskerHigh)}" y1="72" y2="72"/>
+    <line class="wh" x1="${x(s.whiskerLow)}" x2="${x(s.whiskerLow)}" y1="62" y2="82"/><line class="wh" x1="${x(s.whiskerHigh)}" x2="${x(s.whiskerHigh)}" y1="62" y2="82"/>
+    <rect class="bx" x="${x(s.q1)}" y="52" width="${Math.max(1, x(s.q3) - x(s.q1))}" height="40" rx="6"/>
+    <line class="md" x1="${x(s.median)}" x2="${x(s.median)}" y1="52" y2="92"/>${dots}${mark}</svg>`;
+}
+function renderBox() {
+  const res = state.result;
+  $('boxWrap').innerHTML = boxplotSVG(res.summary, res.persons, state.selectedId) +
+    '<p class="hint">箱＝真ん中の50%の人、太い線＝中央値（ちょうど真ん中の人）、ひげ＝ふつうの範囲、○＝かけ離れた人、●＝一人ひとり、▼＝いま選んでいる人です。</p>';
+}
+function renderOverall() {
+  const s = state.result.summary;
+  const items = [
+    ['参加人数', `${s.n}人`], ['1人あたりの枚数', `${s.sheetCount}枚`],
+    ['平均 総合タイム', Core.fmtTime(s.meanT)], ['平均 総合ミス数', `${fm(s.meanM, 2)}回`], ['平均 総合修正数', `${fm(s.meanC, 2)}回`],
+    ['集中度の平均', fm(s.ci.mean, 1)], ['集中度の標準偏差', fm(s.ci.sd, 2)], ['集中度の中央値', fm(s.ci.median, 1)],
+    ['集中度の最小値', fm(s.ci.min, 1)], ['集中度の最大値', fm(s.ci.max, 1)]
+  ];
+  $('stats').innerHTML = items.map(([k, v]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+  renderBox();
+}
+
+</script>
+<script>
+/* --- js/views-table.js --- */
+/* =====================================================================
+ * views-table.js — データ表（並び替え・検索・列幅調整）
+ * ===================================================================== */
+'use strict';
+/* ================= 描画：データ表 ================= */
+const COLS = [
+  { key: 'id', label: '人物', w: 130 }, { key: 'T', label: '総合タイム', w: 118 }, { key: 'M', label: '総合ミス', w: 108 }, { key: 'C', label: '総合修正', w: 108 },
+  { key: 'ci', label: '集中度', w: 100 }, { key: 'speed', label: '速度', w: 100 }, { key: 'accuracy', label: '正確性', w: 100 }, { key: 'correction', label: '修正能力', w: 108 }, { key: 'stability', label: '安定性', w: 100 }
+];
+function tableRows() {
+  const q = state.table.q.normalize('NFKC').toLowerCase().trim();
+  let rows = state.result.persons.map(p => ({ id: p.id, T: p.T, M: p.M, C: p.C, ci: p.scores.ci, speed: p.scores.speed, accuracy: p.scores.accuracy, correction: p.scores.correction, stability: p.scores.stability }));
+  if (q) rows = rows.filter(r => r.id.normalize('NFKC').toLowerCase().includes(q));
+  const { key, dir } = state.table;
+  rows.sort((a, b) => {
+    if (key === 'id') return dir * a.id.localeCompare(b.id, 'ja', { numeric: true });
+    const av = a[key], bv = b[key];
+    if (av === null && bv === null) return 0;
+    if (av === null) return 1;
+    if (bv === null) return -1;
+    return dir * (av - bv);
+  });
+  return rows;
+}
+const cellText = (c, v) => (c.key === 'id' ? v : (c.key === 'T' ? Core.fmtTime(v) : (c.key === 'M' || c.key === 'C' ? rawNum(v) : fmt(v, 1))));
+function widths() {
+  const w = state.settings.colWidths;
+  return COLS.map((c, i) => (Array.isArray(w) && w.length === COLS.length && w[i] >= 60 ? w[i] : c.w));
+}
+function applyWidths() {
+  const ws = widths();
+  const cols = $('dataTbl').querySelectorAll('col');
+  cols.forEach((c, i) => { c.style.width = ws[i] + 'px'; });
+  $('dataTbl').style.width = Math.max(ws.reduce((a, b) => a + b, 0), 0) + 'px';
+}
+function renderTableHead() {
+  const ws = widths();
+  $('dataTbl').innerHTML = `<colgroup>${COLS.map((c, i) => `<col style="width:${ws[i]}px">`).join('')}</colgroup><thead><tr>${
+    COLS.map((c, i) => `<th data-key="${c.key}" aria-sort="none"><button class="thb" type="button">${c.label}<span class="arr"></span></button><span class="rz" data-i="${i}"></span></th>`).join('')
+  }</tr></thead><tbody></tbody>`;
+  applyWidths();
+  updateSortMarks();
+}
+function updateSortMarks() {
+  document.querySelectorAll('#dataTbl th[data-key]').forEach(th => {
+    const on = th.dataset.key === state.table.key;
+    th.setAttribute('aria-sort', on ? (state.table.dir === 1 ? 'ascending' : 'descending') : 'none');
+    th.querySelector('.arr').textContent = on ? (state.table.dir === 1 ? '▲' : '▼') : '';
+  });
+}
+function renderTableBody() {
+  const rows = tableRows();
+  $('dataTbl').querySelector('tbody').innerHTML = rows.map(r => `<tr data-id="${esc(r.id)}" class="${r.id === state.selectedId ? 'sel' : ''}">${COLS.map(c => `<td>${esc(cellText(c, r[c.key]))}</td>`).join('')}</tr>`).join('');
+  $('qCount').textContent = `${state.result.persons.length}人中 ${rows.length}人を表示`;
+}
+function renderTable() { renderTableHead(); renderTableBody(); }
+
+</script>
+<script>
+/* --- js/history.js --- */
+/* =====================================================================
+ * history.js — 履歴：保存・再表示・削除
+ * ===================================================================== */
+'use strict';
+/* ================= 描画：履歴 ================= */
+function renderHistory() {
+  $('histNotice').innerHTML = Store.persistent ? '' : '<div class="notice warn">この環境ではブラウザへの保存が使えないため、履歴はこのページを閉じると消えます。</div>';
+  const box = $('saveBox');
+  const ok = !!(state.dataset && state.result && !state.result.errors.length);
+  box.hidden = !ok;
+  if (ok) {
+    if (document.activeElement !== $('expDate')) $('expDate').value = state.expDate || todayStr();
+    $('saveHist').textContent = state.historyId ? '履歴を更新する' : '履歴に保存';
+  }
+  const list = [...state.history].sort((a, b) => (b.date || '').localeCompare(a.date || '') || b.savedAt - a.savedAt);
+  $('histList').innerHTML = list.length ? list.map(h => `<li class="${h.id === state.historyId ? 'cur' : ''}"><div><div class="t">${esc(slashDate(h.date))}　${esc(h.name || '（名前なし）')}</div><div class="m">${h.n}人・${h.k}枚／集中度の平均 ${fmt(h.ciMean, 1)}・標準偏差 ${fmt(h.ciSd, 2)}／${esc(h.fileName || '')}</div></div><div class="row"><button class="btn small" data-open="${esc(h.id)}" type="button">開く</button><button class="btn danger small" data-del="${esc(h.id)}" type="button">削除</button></div></li>`).join('')
+    : '<li><span class="hint">まだ履歴はありません。分析したあとに「履歴に保存」を押すと、ここに残ります。</span></li>';
+  $('delHist').disabled = !list.length;
+}
+async function refreshHistory() { try { state.history = await Store.listHistory(); } catch (e) { state.history = []; } renderHistory(); }
+async function saveHistory() {
+  if (!state.dataset || !state.result || state.result.errors.length) return;
+  const name = (state.expName || '').trim();          // 未入力なら空のまま（サイト名は「集中度記録サイト」）
+  const date = $('expDate').value || todayStr();
+  state.expDate = date;
+  const s = state.result.summary;
+  const rec = {
+    id: state.historyId || newId(), name, date, savedAt: Date.now(), fileName: state.fileName, sheetName: state.sheetName,
+    n: s.n, k: s.sheetCount, ciMean: s.ci.mean, ciSd: s.ci.sd, sdType: state.settings.sd,
+    dataset: state.dataset, check: state.check
+  };
+  try { await Store.putHistory(rec); state.historyId = rec.id; toast('履歴に保存しました'); }
+  catch (e) { toast('履歴を保存できませんでした', 'err'); }
+  await refreshHistory(); persistSession();
+}
+function openHistory(id) {
+  const rec = state.history.find(h => h.id === id);
+  if (!rec) return;
+  state.dataset = rec.dataset; state.check = rec.check; state.sources = []; state.blocked = false;
+  state.fileName = rec.fileName || ''; state.sheetName = rec.sheetName || '';
+  setExpName(rec.name || ''); state.expDate = rec.date; state.historyId = rec.id; state.errors = [];
+  state.excludeProblems = true;
+  state.settings.sd = rec.sdType === 'population' ? 'population' : 'sample'; Settings.save();
+  $('sdSel').value = state.settings.sd;
+  $('sheetPick').hidden = true;
+  $('restoreNote').innerHTML = `<div class="notice ok">履歴「${esc(rec.name || '（名前なし）')}」（${esc(slashDate(rec.date))}）を開きました。</div>`;
+  runAnalysis();
+  document.getElementById('person').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
+}
+
+</script>
+<script>
+/* --- js/download.js --- */
+/* =====================================================================
+ * download.js — 保存の共通処理（保存機能／通常ダウンロード）、canvas道具、ZIP作成
+ * ===================================================================== */
+'use strict';
+/* ================= 画像・ファイルの保存 ================= */
+let dlPromise = null;
+function getDownloads() {
+  if (!window.claude || typeof window.claude.use !== 'function') return Promise.resolve(null);
+  if (!dlPromise) dlPromise = Promise.resolve(window.claude.use('downloads')).catch(() => null);
+  return dlPromise;
+}
+async function saveFile(filename, blob) {
+  const dl = await getDownloads();
+  if (dl) {
+    try { await dl.save({ filename, data: blob }); toast('保存しました：' + filename); }
+    catch (e) {
+      const code = e && e.code;
+      if (code === 'declined') toast('保存をキャンセルしました');
+      else if (code === 'rate_limited') toast('前の保存の確認が終わってから、もう一度押してください', 'err');
+      else if (code === 'extension_not_enabled' || code === 'rejected_extension') toast(`この環境では「.${(filename.split('.').pop() || '').toLowerCase()}」形式の保存が使えません` + (/\.zip$/i.test(filename) ? '。代わりに、1人ずつ「画像として保存」を使ってください' : ''), 'err');
+      else toast('保存できませんでした' + (code ? '（' + code + '）' : ''), 'err');
+    }
+    return;
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+  toast('ダウンロードを開始しました：' + filename);
+}
+const canvasBlob = c => new Promise((res, rej) => c.toBlob(b => (b ? res(b) : rej(new Error('toBlob'))), 'image/png'));
+
+function wrapLines(g, text, maxW) {
+  const lines = []; let line = '';
+  for (const ch of text) {
+    if (g.measureText(line + ch).width > maxW && line) { lines.push(line); line = ch; } else line += ch;
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+function fitText(g, text, maxW) {
+  if (g.measureText(text).width <= maxW) return text;
+  let t = text;
+  while (t.length > 1 && g.measureText(t + '…').width > maxW) t = t.slice(0, -1);
+  return t + '…';
+}
+function startCanvas(W, H, S) {
+  const c = document.createElement('canvas'); c.width = W * S; c.height = H * S;
+  const g = c.getContext('2d'); g.scale(S, S);
+  g.fillStyle = '#ffffff'; g.fillRect(0, 0, W, H);
+  g.textBaseline = 'alphabetic';
+  return { c, g };
+}
+const font = (size, weight) => `${weight || 400} ${size}px ${FONT}`;
+async function awaitFonts() { try { await document.fonts.ready; await document.fonts.load(font(20, 700), '集中度'); await document.fonts.load(font(20, 900), '集中度'); } catch (e) { /* フォントが読めなくても続行 */ } }
+
+/* ---------- ZIP（無圧縮）：個人画像をまとめて1つのファイルにする ---------- */
+const Zip = (() => {
+  const TB = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1); TB[n] = c >>> 0; }
+  const crc32 = u8 => { let c = 0xFFFFFFFF; for (let i = 0; i < u8.length; i++) c = TB[(c ^ u8[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; };
+  function build(files) {
+    const enc = new TextEncoder(), parts = [], central = [];
+    const d = new Date();
+    const dosTime = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1);
+    const dosDate = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+    let offset = 0;
+    for (const f of files) {
+      const nm = enc.encode(f.name), crc = crc32(f.data), size = f.data.length;
+      const lh = new DataView(new ArrayBuffer(30));
+      lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true); lh.setUint16(8, 0, true);
+      lh.setUint16(10, dosTime, true); lh.setUint16(12, dosDate, true); lh.setUint32(14, crc, true); lh.setUint32(18, size, true); lh.setUint32(22, size, true);
+      lh.setUint16(26, nm.length, true); lh.setUint16(28, 0, true);
+      parts.push(new Uint8Array(lh.buffer), nm, f.data);
+      const ch = new DataView(new ArrayBuffer(46));
+      ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(8, 0x0800, true); ch.setUint16(10, 0, true);
+      ch.setUint16(12, dosTime, true); ch.setUint16(14, dosDate, true); ch.setUint32(16, crc, true); ch.setUint32(20, size, true); ch.setUint32(24, size, true);
+      ch.setUint16(28, nm.length, true); ch.setUint32(42, offset, true);
+      central.push(new Uint8Array(ch.buffer), nm);
+      offset += 30 + nm.length + size;
+    }
+    const cdSize = central.reduce((a, b) => a + b.length, 0);
+    const end = new DataView(new ArrayBuffer(22));
+    end.setUint32(0, 0x06054b50, true); end.setUint16(8, files.length, true); end.setUint16(10, files.length, true); end.setUint32(12, cdSize, true); end.setUint32(16, offset, true);
+    return new Blob([...parts, ...central, new Uint8Array(end.buffer)], { type: 'application/zip' });
+  }
+  return { build, crc32 };
+})();
+
+</script>
+<script>
+/* --- js/canvas-charts.js --- */
+/* =====================================================================
+ * canvas-charts.js — 自前のcanvas描画：波・レーダー・箱ひげ図・順位グラフ（画面と画像の両方で使用）
+ * ===================================================================== */
+'use strict';
+/* ---------- 自前のcanvas描画（画面の全体グラフと、書き出す画像の両方で使う） ---------- */
+// 点をなめらかにつなぐ（点の間で値が行き過ぎない「単調」な曲線）
+function tracePath(g, pts, smooth, first) {
+  if (!pts.length) return;
+  if (first === 'move') g.moveTo(pts[0].x, pts[0].y); else g.lineTo(pts[0].x, pts[0].y);
+  if (pts.length === 1) return;
+  if (!smooth || pts.length === 2) { for (let i = 1; i < pts.length; i++) g.lineTo(pts[i].x, pts[i].y); return; }
+  const n = pts.length, dx = [], m = [], t = new Array(n);
+  for (let i = 0; i < n - 1; i++) { dx.push(pts[i + 1].x - pts[i].x); m.push((pts[i + 1].y - pts[i].y) / dx[i]); }
+  t[0] = m[0]; t[n - 1] = m[n - 2];
+  for (let i = 1; i < n - 1; i++) t[i] = (m[i - 1] * m[i] <= 0) ? 0 : (m[i - 1] + m[i]) / 2;
+  for (let i = 0; i < n - 1; i++) {
+    if (m[i] === 0) { t[i] = 0; t[i + 1] = 0; continue; }
+    const a = t[i] / m[i], b = t[i + 1] / m[i], s = a * a + b * b;
+    if (s > 9) { const tau = 3 / Math.sqrt(s); t[i] = tau * a * m[i]; t[i + 1] = tau * b * m[i]; }
+  }
+  for (let i = 0; i < n - 1; i++) {
+    const h = dx[i];
+    g.bezierCurveTo(pts[i].x + h / 3, pts[i].y + t[i] * h / 3, pts[i + 1].x - h / 3, pts[i + 1].y - t[i + 1] * h / 3, pts[i + 1].x, pts[i + 1].y);
+  }
+}
+function drawWave(g, x0, y0, w, h, o, pal) {
+  const K = o.main.length;
+  let vals = o.main.concat([100]);
+  (o.faint || []).forEach(a => { vals = vals.concat(a); });
+  if (o.band) vals = vals.concat(o.band.lo, o.band.hi);
+  let lo = Math.min(...vals), hi = Math.max(...vals);
+  const pad = ((hi - lo) || 10) * 0.1;
+  lo -= pad; hi += pad * (o.valueLabels ? 1.7 : 1);
+  const L = 58, R = 24, T = 20, B = o.caption ? 78 : 58;
+  const pw = w - L - R, ph = h - T - B;
+  const X = k => x0 + L + (K === 1 ? pw / 2 : 24 + k * (pw - 48) / (K - 1));
+  const Y = v => y0 + T + (hi - v) / (hi - lo) * ph;
+  const step = niceStep((hi - lo) / 5);
+  g.lineWidth = 1; g.strokeStyle = pal.grid; g.fillStyle = pal.muted; g.font = font(13, 500); g.textAlign = 'right';
+  for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) {
+    const yy = Y(v);
+    g.beginPath(); g.moveTo(x0 + L, yy); g.lineTo(x0 + w - R, yy); g.stroke();
+    g.fillText(Core.fmt(v, step < 1 ? 1 : 0), x0 + L - 8, yy + 4);
+  }
+  g.save(); g.translate(x0 + 14, y0 + T + ph / 2); g.rotate(-Math.PI / 2); g.textAlign = 'center'; g.fillStyle = pal.ink; g.font = font(14, 700); g.fillText('集中度', 0, 0); g.restore();
+  if (o.showMean !== false) {
+    g.setLineDash([7, 6]); g.strokeStyle = pal.muted; g.lineWidth = 1.6;
+    g.beginPath(); g.moveTo(x0 + L, Y(100)); g.lineTo(x0 + w - R, Y(100)); g.stroke(); g.setLineDash([]);
+    g.fillStyle = pal.muted; g.font = font(12, 700); g.textAlign = 'right'; g.fillText('平均 100', x0 + w - R, Y(100) - 6);
+  }
+  g.fillStyle = pal.muted; g.font = font(13, 500); g.textAlign = 'center';
+  const every = K <= 14 ? 1 : Math.ceil(K / 12);
+  for (let k = 0; k < K; k++) if (k % every === 0) g.fillText(o.labels[k], X(k), y0 + T + ph + 22);
+  const pts = arr => arr.map((v, k) => ({ x: X(k), y: Y(v) }));
+  const smooth = !!o.smooth;
+  if (o.band && K >= 2) {
+    g.beginPath(); tracePath(g, pts(o.band.hi), smooth, 'move'); tracePath(g, pts(o.band.lo).reverse(), smooth, 'line'); g.closePath();
+    g.fillStyle = withAlpha(pal.accent, 0.15); g.fill();
+  }
+  (o.faint || []).forEach(a => { g.beginPath(); tracePath(g, pts(a), smooth, 'move'); g.strokeStyle = withAlpha(pal.accent, 0.18); g.lineWidth = 1.2; g.stroke(); });
+  const mp = pts(o.main);
+  if (o.area && K >= 2) {
+    const grad = g.createLinearGradient(0, y0 + T, 0, y0 + T + ph);
+    grad.addColorStop(0, withAlpha(pal.accent, 0.32)); grad.addColorStop(1, withAlpha(pal.accent, 0.02));
+    g.beginPath(); tracePath(g, mp, smooth, 'move'); g.lineTo(mp[K - 1].x, y0 + T + ph); g.lineTo(mp[0].x, y0 + T + ph); g.closePath(); g.fillStyle = grad; g.fill();
+  }
+  g.beginPath(); tracePath(g, mp, smooth, 'move'); g.strokeStyle = pal.accent; g.lineWidth = 3.5; g.lineJoin = 'round'; g.stroke();
+  mp.forEach((q, k) => {
+    g.beginPath(); g.arc(q.x, q.y, 5.5, 0, Math.PI * 2); g.fillStyle = pal.card; g.fill(); g.lineWidth = 3; g.strokeStyle = pal.accent; g.stroke();
+    if (o.valueLabels) { g.fillStyle = pal.ink; g.font = font(13, 700); g.textAlign = 'center'; g.fillText(Core.fmt(o.main[k], 1), q.x, q.y - 12); }
+  });
+  if (o.caption) { g.fillStyle = pal.muted; g.font = font(13, 500); g.textAlign = 'left'; g.fillText(o.caption, x0 + L, y0 + h - 8); }
+  g.textAlign = 'left';
+}
+function drawRadar(g, x0, y0, w, h, p, pal) {
+  const labels = ['集中度', '速度', '正確性', '修正能力', '安定性'];
+  const cx = x0 + w / 2, cy = y0 + h / 2 - 10;
+  const R = Math.min(w / 2 - 95, h / 2 - 85);
+  const ang = i => -Math.PI / 2 + i * 2 * Math.PI / 5;
+  const pt = (i, r) => ({ x: cx + Math.cos(ang(i)) * r, y: cy + Math.sin(ang(i)) * r });
+  const poly = (r) => { g.beginPath(); for (let i = 0; i < 5; i++) { const q = pt(i, r); if (i) g.lineTo(q.x, q.y); else g.moveTo(q.x, q.y); } g.closePath(); };
+  g.lineWidth = 1; g.strokeStyle = pal.grid;
+  [25, 50, 75, 100].forEach(v => { poly(R * v / 100); g.stroke(); });
+  for (let i = 0; i < 5; i++) { const q = pt(i, R); g.beginPath(); g.moveTo(cx, cy); g.lineTo(q.x, q.y); g.stroke(); }
+  g.fillStyle = pal.muted; g.font = font(12, 500); g.textAlign = 'left';
+  [25, 50, 75, 100].forEach(v => g.fillText(String(v), cx + 5, cy - R * v / 100 - 3));
+  g.setLineDash([7, 6]); g.strokeStyle = pal.muted; g.lineWidth = 1.8; poly(R * 0.5); g.stroke(); g.setLineDash([]);
+  const vals = KEYS.map(k => p.radar[k]);
+  g.beginPath(); vals.forEach((v, i) => { const q = pt(i, R * v / 100); if (i) g.lineTo(q.x, q.y); else g.moveTo(q.x, q.y); }); g.closePath();
+  g.fillStyle = withAlpha(pal.accent, 0.22); g.fill(); g.strokeStyle = pal.accent; g.lineWidth = 3.5; g.lineJoin = 'round'; g.stroke();
+  vals.forEach((v, i) => { const q = pt(i, R * v / 100); g.beginPath(); g.arc(q.x, q.y, 6, 0, Math.PI * 2); g.fillStyle = pal.accent; g.fill(); });
+  KEYS.forEach((k, i) => {
+    const q = pt(i, R + 24), c = Math.cos(ang(i)), s = Math.sin(ang(i));
+    g.textAlign = c > 0.3 ? 'left' : (c < -0.3 ? 'right' : 'center');
+    const ny = q.y + (s < -0.8 ? -24 : (s > 0.5 ? 16 : -2));
+    g.fillStyle = pal.ink; g.font = font(21, 700); g.fillText(labels[i], q.x, ny);
+    g.fillStyle = pal.accent; g.font = font(18, 900); g.fillText(fmt(p.scores[k], 1), q.x, ny + 22);
+  });
+  g.textAlign = 'left';
+  const ly = y0 + h - 12;
+  g.setLineDash([7, 6]); g.strokeStyle = pal.muted; g.lineWidth = 1.8; g.beginPath(); g.moveTo(cx - 230, ly - 5); g.lineTo(cx - 195, ly - 5); g.stroke(); g.setLineDash([]);
+  g.fillStyle = pal.muted; g.font = font(14, 500); g.fillText('全体の平均（100）', cx - 188, ly);
+  g.fillStyle = withAlpha(pal.accent, 0.3); g.fillRect(cx + 20, ly - 13, 35, 14); g.strokeStyle = pal.accent; g.lineWidth = 2; g.strokeRect(cx + 20, ly - 13, 35, 14);
+  g.fillStyle = pal.ink; g.fillText(fitText(g, p.id, 200), cx + 62, ly);
+}
+function drawBoxCanvas(g, x0, y0, w, res, pal) {
+  const s = res.summary.ci, vals = res.persons.map(p => p.scores.ci);
+  const lo = Math.min(...vals), hi = Math.max(...vals), span = (hi - lo) || 1;
+  const min = lo - span * 0.08, max = hi + span * 0.08, padL = 28, padR = 28;
+  const X = v => x0 + padL + (v - min) / (max - min) * (w - padL - padR);
+  const ay = y0 + 150;
+  g.strokeStyle = pal.muted; g.lineWidth = 1; g.beginPath(); g.moveTo(x0 + padL, ay); g.lineTo(x0 + w - padR, ay); g.stroke();
+  g.fillStyle = pal.muted; g.font = font(13, 500); g.textAlign = 'center';
+  const step = niceStep((max - min) / 6);
+  for (let v = Math.ceil(min / step) * step; v <= max + 1e-9; v += step) { g.beginPath(); g.moveTo(X(v), ay); g.lineTo(X(v), ay + 6); g.stroke(); g.fillText(Core.fmt(v, step < 1 ? 1 : 0), X(v), ay + 24); }
+  g.strokeStyle = pal.accent; g.lineWidth = 2;
+  [[s.whiskerLow, s.q1], [s.q3, s.whiskerHigh]].forEach(([a, b]) => { g.beginPath(); g.moveTo(X(a), y0 + 72); g.lineTo(X(b), y0 + 72); g.stroke(); });
+  [s.whiskerLow, s.whiskerHigh].forEach(v => { g.beginPath(); g.moveTo(X(v), y0 + 62); g.lineTo(X(v), y0 + 82); g.stroke(); });
+  g.beginPath(); g.roundRect(X(s.q1), y0 + 52, Math.max(1, X(s.q3) - X(s.q1)), 40, 6); g.fillStyle = withAlpha(pal.accent, 0.15); g.fill(); g.stroke();
+  g.lineWidth = 3.5; g.beginPath(); g.moveTo(X(s.median), y0 + 52); g.lineTo(X(s.median), y0 + 92); g.stroke();
+  g.fillStyle = pal.accent; g.font = font(13, 700); g.fillText('中央値 ' + fmt(s.median, 1), X(s.median), y0 + 42);
+  const iqr = s.q3 - s.q1;
+  res.persons.forEach((p, i) => {
+    const v = p.scores.ci, jit = (((i * 37) % 11) - 5) * 1.6;
+    const out = v < s.q1 - 1.5 * iqr || v > s.q3 + 1.5 * iqr;
+    g.beginPath(); g.arc(X(v), y0 + 118 + jit, out ? 4.5 : 3.5, 0, Math.PI * 2);
+    if (out) { g.lineWidth = 2; g.strokeStyle = pal.accent; g.stroke(); } else { g.fillStyle = withAlpha(pal.accent, 0.55); g.fill(); }
+  });
+  g.textAlign = 'left';
+}
+// 順位グラフの大きさ：狭い画面では「名前の下に棒」の2段にして、名前を省略しない
+function barsLayout(w, n) {
+  const stack = w < 560;
+  const rh = stack ? 46 : 28;
+  return { stack, rh, height: 34 + n * rh + 10 };
+}
+function drawBars(g, x0, y0, w, persons, pal, o) {
+  const rows = [...persons].sort((a, b) => b.scores.ci - a.scores.ci).slice(0, o.limit || 1e9);
+  const { stack, rh } = barsLayout(w, rows.length);
+  const pad = 8, lab = 54;                                   // 左右の余白／値の数字を置く場所
+  const label = p => (o.anon ? `参加者${p.index + 1}` : p.id);
+  g.font = font(14, 700);
+  const nameW = stack ? 0 : Math.min(Math.max(...rows.map(p => g.measureText(label(p)).width)) + 14, w * 0.4);
+  const bx = x0 + pad + nameW + lab, bw = w - pad * 2 - nameW - lab * 2;
+  const cx = bx + bw / 2;
+  const maxDev = Math.max(5, ...rows.map(p => Math.abs(p.scores.ci - 100))) * 1.12;
+  const sc = bw / 2 / maxDev;
+  const top = y0 + 30;
+  g.fillStyle = pal.muted; g.font = font(12, 700); g.textAlign = 'center'; g.fillText('平均 100', cx, y0 + 16);
+  g.strokeStyle = pal.muted; g.lineWidth = 1.4;
+  g.beginPath(); g.moveTo(cx, y0 + 22); g.lineTo(cx, top + rows.length * rh + 2); g.stroke();
+  rows.forEach((p, i) => {
+    const yy = top + i * rh, v = p.scores.ci, sel = o.selId === p.id;
+    g.textAlign = 'left'; g.font = font(14, sel ? 900 : 500); g.fillStyle = sel ? pal.accent : pal.ink;
+    g.fillText(fitText(g, label(p), stack ? w - pad * 2 : nameW - 8), x0 + pad, yy + (stack ? 15 : 18));
+    const barY = stack ? yy + 22 : yy + 4, barH = stack ? 16 : rh - 10;
+    const bwid = Math.abs(v - 100) * sc;
+    g.fillStyle = v >= 100 ? pal.accent : pal.accent2;
+    g.beginPath(); g.roundRect(v >= 100 ? cx : cx - bwid, barY, Math.max(2, bwid), barH, 4); g.fill();
+    g.fillStyle = pal.ink; g.font = font(13, 700);
+    const ty = barY + barH / 2 + 5;
+    if (v >= 100) { g.textAlign = 'left'; g.fillText(fmt(v, 1), cx + bwid + 6, ty); } else { g.textAlign = 'right'; g.fillText(fmt(v, 1), cx - bwid - 6, ty); }
+  });
+  g.textAlign = 'left';
+}
+function drawTile(g, x, y, w, h, k, v, pal) {
+  g.fillStyle = withAlpha(pal.accent, 0.10); g.beginPath(); g.roundRect(x, y, w, h, 14); g.fill();
+  g.textAlign = 'left'; g.fillStyle = pal.muted; g.font = font(15, 700); g.fillText(k, x + 16, y + 28);
+  g.fillStyle = pal.ink; g.font = font(30, 900); g.fillText(v, x + 16, y + 66);
+}
+function overallWaveOpts(res, smooth) {
+  const K = res.K, mat = res.persons.map(p => p.sheets.map(s => s.ci));
+  const means = [], lo = [], hi = [];
+  for (let k = 0; k < K; k++) { const c = mat.map(r => r[k]), sorted = [...c].sort((a, b) => a - b); means.push(Core.mean(c)); lo.push(Core.quantile(sorted, 0.25)); hi.push(Core.quantile(sorted, 0.75)); }
+  const nos = res.persons[0].sheets.map(s => s.no);
+  return { labels: nos.map(n => (K <= 14 ? `${n}枚目` : String(n))), main: means, band: { lo, hi }, faint: mat.length <= 80 ? mat : [], smooth, showMean: true, caption: '太線＝全員の平均　帯＝真ん中の50%の人　細線＝一人ひとり　点線＝平均100' };
+}
+
+/* ---------- 画面上の全体グラフ ---------- */
+function paintCanvas(cv, cssH, draw) {
+  const w = Math.max(280, Math.floor(cv.parentElement.clientWidth));
+  const h = typeof cssH === 'function' ? cssH(w) : cssH;
+  const dpr = Math.min(window.devicePixelRatio || 1, 3);
+  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+  cv.style.width = w + 'px'; cv.style.height = h + 'px';
+  const g = cv.getContext('2d');
+  g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, w, h);
+  draw(g, w, h);
+}
+function renderOverallCharts() {
+  if (!state.result || state.result.errors.length || $('overall').hidden) return;
+  const res = state.result, pal = livePalette();
+  paintCanvas($('ovWaveCv'), 340, (g, w, h) => drawWave(g, 0, 0, w, h, Object.assign(overallWaveOpts(res, state.settings.smooth), { caption: null }), pal));
+  paintCanvas($('ovBarCv'), w => barsLayout(w, res.persons.length).height, (g, w) => drawBars(g, 0, 0, w, res.persons, pal, { anon: false, selId: state.selectedId }));
+}
+function redrawCharts() { if (state.result && !state.result.errors.length) { drawCharts(cur()); renderOverallCharts(); } }
+
+</script>
+<script>
+/* --- js/image-export.js --- */
+/* =====================================================================
+ * image-export.js — 画像の組み立てと書き出し：個人1枚版・全体・データ表・ZIP
+ * ===================================================================== */
+'use strict';
+/* ---------- 画像の組み立て ---------- */
+function frame(g, W, title, sub) {
+  g.fillStyle = LIGHT.accent; g.fillRect(0, 0, 10, 96);
+  g.fillStyle = LIGHT.ink; g.font = font(34, 900); g.textAlign = 'left'; g.fillText(title, 40, 50);
+  g.fillStyle = LIGHT.muted; g.font = font(19, 500); g.fillText(sub, 40, 82);
+  g.textAlign = 'right'; g.font = font(16, 500); g.fillText(fitText(g, siteName(), W * 0.45), W - 40, 34); g.textAlign = 'left';
+}
+// 個人用の見出し：記録者名を大きく表示する
+function frameName(g, W, p, sub) {
+  g.fillStyle = LIGHT.accent; g.fillRect(0, 0, 10, 100);
+  g.textAlign = 'right'; g.fillStyle = LIGHT.muted; g.font = font(16, 500); g.fillText(fitText(g, siteName(), W * 0.45), W - 40, 34); g.textAlign = 'left';
+  const label = '記録者：' + p.id;
+  let size = 40; g.font = font(size, 900);
+  while (g.measureText(label).width > W - 400 && size > 20) { size -= 2; g.font = font(size, 900); }
+  g.fillStyle = LIGHT.ink; g.fillText(label, 40, 56);
+  let ss = 18; g.font = font(ss, 500);
+  while (g.measureText(sub).width > W - 80 && ss > 12) { ss--; g.font = font(ss, 500); }
+  g.fillStyle = LIGHT.muted; g.fillText(sub, 40, 88);
+}
+function footerNote(g, W, y) {
+  g.fillStyle = LIGHT.muted; g.font = font(15, 400); g.textAlign = 'left';
+  const t = '※ 集中度指数は本研究で設定した独自指標です。医学的・心理学的に確立された「集中力そのもの」の測定値ではなく、本研究の条件における相対的な指標です。';
+  const lines = wrapLines(g, t, W - 80);
+  lines.forEach((ln, i) => g.fillText(ln, 40, y + i * 22));
+  g.fillText('CI = 100 + 15 × (0.40 S_T + 0.35 S_M + 0.15 S_C + 0.10 S_S)', 40, y + lines.length * 22);
+}
+const metaLine = res => `${state.expName || ''}　${slashDate(state.expDate)}　全${res.K}枚${state.check && (state.check.warnings || []).some(w => w.includes('枚数をそろえるため')) ? '（枚数をそろえて分析）' : ''}`;
+const pngBytes = async c => new Uint8Array(await (await canvasBlob(c)).arrayBuffer());
+
+async function renderRadarCanvas(p, res, S) {
+  await awaitFonts();
+  const W = 1000, H = 940, { c, g } = startCanvas(W, H, S);
+  frameName(g, W, p, `5角形レーダーチャート　${metaLine(res)}`);
+  drawRadar(g, 40, 112, W - 80, 720, p, LIGHT);
+  footerNote(g, W, 856);
+  return c;
+}
+async function renderWaveCanvas(p, res, S) {
+  await awaitFonts();
+  const W = 1600, H = 700, { c, g } = startCanvas(W, H, S);
+  frameName(g, W, p, `集中力の波（集中度の推移）　${metaLine(res)}`);
+  drawWave(g, 40, 112, W - 80, 490, { labels: p.sheets.map(s => `${s.no}枚目`), main: p.sheets.map(s => s.ci), smooth: state.settings.smooth, showMean: state.settings.showMean, valueLabels: p.sheets.length <= 20, area: true }, LIGHT);
+  footerNote(g, W, 626);
+  return c;
+}
+async function renderOverviewCanvas(p, res, S) {
+  await awaitFonts();
+  const W = 1600, H = 1350, { c, g } = startCanvas(W, H, S);
+  frameName(g, W, p, `${metaLine(res)}　総合タイム ${Core.fmtTime(p.T)}　ミス ${rawNum(p.M)}回　修正 ${rawNum(p.C)}回`);
+  g.fillStyle = LIGHT.ink; g.font = font(22, 700); g.textAlign = 'left';
+  g.fillText('① 5角形レーダーチャート', 40, 136); g.fillText('② 5つの数値', 790, 136);
+  drawRadar(g, 40, 148, 700, 640, p, LIGHT);
+  let y = 150;
+  METRIC_DEFS.forEach(d => {
+    const v = p.scores[d.key];
+    g.fillStyle = d.main ? '#eceefe' : '#f6f7fc'; g.beginPath(); g.roundRect(790, y, 770, 116, 18); g.fill();
+    g.fillStyle = LIGHT.accent; g.font = font(d.main ? 62 : 54, 900); g.textAlign = 'right'; g.fillText(fmt(v, 1), 950, y + (d.main ? 78 : 74)); g.textAlign = 'left';
+    g.fillStyle = LIGHT.ink; g.font = font(26, 700); g.fillText(d.label, 980, y + 40);
+    g.fillStyle = LIGHT.muted; g.font = font(17, 500); g.fillText(d.desc, 980, y + 68);
+    g.font = font(15, 400);
+    wrapLines(g, reasonFor(d.key, p, res), 560).slice(0, 1).forEach(ln => g.fillText(ln, 980, y + 94));
+    y += 126;
+  });
+  g.fillStyle = LIGHT.ink; g.font = font(24, 700); g.fillText('③ 集中力の波（集中度の推移）', 40, 846);
+  drawWave(g, 40, 860, W - 80, 410, { labels: p.sheets.map(s => `${s.no}枚目`), main: p.sheets.map(s => s.ci), smooth: state.settings.smooth, showMean: state.settings.showMean, valueLabels: p.sheets.length <= 20, area: true }, LIGHT);
+  footerNote(g, W, 1294);
+  return c;
+}
+async function renderOverallCanvas(res, anon, S) {
+  await awaitFonts();
+  const W = 1600, sm = res.summary, n = res.persons.length, rows = Math.min(n, 40), barH = barsLayout(W - 80, rows).height;
+  const H = 1012 + barH + 110, { c, g } = startCanvas(W, H, S);
+  frame(g, W, '全体の分析', `${state.expName || ''}　${slashDate(state.expDate)}　${n}人・${res.K}枚`);
+  const items = [['参加人数', `${sm.n}人`], ['1人あたりの枚数', `${sm.sheetCount}枚`], ['平均 総合タイム', Core.fmtTime(sm.meanT)], ['平均 総合ミス数', `${fm(sm.meanM, 2)}回`], ['平均 総合修正数', `${fm(sm.meanC, 2)}回`],
+    ['集中度の平均', fm(sm.ci.mean, 1)], ['集中度の標準偏差', fm(sm.ci.sd, 2)], ['集中度の中央値', fm(sm.ci.median, 1)], ['集中度の最小値', fm(sm.ci.min, 1)], ['集中度の最大値', fm(sm.ci.max, 1)]];
+  const tw = (W - 80 - 4 * 12) / 5;
+  items.forEach(([k, v], i) => drawTile(g, 40 + (i % 5) * (tw + 12), 128 + Math.floor(i / 5) * 96, tw, 84, k, v, LIGHT));
+  g.fillStyle = LIGHT.ink; g.font = font(24, 700);
+  g.fillText('集中度の分布（箱ひげ図）', 40, 350); drawBoxCanvas(g, 40, 362, W - 80, res, LIGHT);
+  g.fillStyle = LIGHT.ink; g.font = font(24, 700);
+  g.fillText('全員の集中度の波（枚ごとの推移）', 40, 590); drawWave(g, 40, 604, W - 80, 350, overallWaveOpts(res, state.settings.smooth), LIGHT);
+  g.fillStyle = LIGHT.ink; g.font = font(24, 700);
+  g.fillText(`集中度の順位（平均100との差）${n > rows ? `　上位${rows}人のみ` : ''}`, 40, 990); drawBars(g, 40, 1012, W - 80, res.persons, LIGHT, { anon, limit: rows });
+  footerNote(g, W, 1012 + barH + 26);
+  return c;
+}
+
+/* ---------- 書き出し ---------- */
+async function exportRadar() { const p = cur(); await saveFile(`radar_${safeName(p.id)}.png`, await canvasBlob(await renderRadarCanvas(p, state.result, 2))); }
+async function exportWave() { const p = cur(); await saveFile(`wave_${safeName(p.id)}.png`, await canvasBlob(await renderWaveCanvas(p, state.result, 2))); }
+async function exportOverview() { const p = cur(); await saveFile(`overview_${safeName(p.id)}.png`, await canvasBlob(await renderOverviewCanvas(p, state.result, 2))); }
+async function exportOverall() { await saveFile(`overall_analysis_${stamp()}.png`, await canvasBlob(await renderOverallCanvas(state.result, !state.settings.nameInOverall, 2))); }
+async function exportIndividualZip() {
+  const res = state.result, extra = $('zipExtra').checked, files = [], btn = $('dlZip');
+  btn.disabled = true;
+  try {
+    for (let i = 0; i < res.persons.length; i++) {
+      const p = res.persons[i], base = `${String(i + 1).padStart(2, '0')}_${safeName(p.id)}`;
+      toast(`個人画像を作成中… ${i + 1} / ${res.persons.length}（${p.id}）`);
+      await new Promise(r => setTimeout(r, 0));
+      files.push({ name: `${base}_総合分析.png`, data: await pngBytes(await renderOverviewCanvas(p, res, 2)) });
+      if (extra) {
+        files.push({ name: `${base}_レーダー.png`, data: await pngBytes(await renderRadarCanvas(p, res, 2)) });
+        files.push({ name: `${base}_波.png`, data: await pngBytes(await renderWaveCanvas(p, res, 2)) });
+      }
+    }
+    await saveFile(`individual_images_${stamp()}.zip`, Zip.build(files));
+  } finally { btn.disabled = false; }
+}
+async function exportTableImage() {
+  await awaitFonts();
+  const res = state.result, anon = !state.settings.nameInOverall, idx = new Map(res.persons.map(p => [p.id, p.index]));
+  const rows = tableRows(), CAP = 200, shown = rows.slice(0, CAP);
+  const widthsPx = [130, 130, 110, 110, 110, 110, 110, 120, 110];
+  const W = widthsPx.reduce((a, b) => a + b, 0) + 80, rowH = 36, S = 2;
+  const H = 150 + 44 + shown.length * rowH + 100;
+  const { c, g } = startCanvas(W, H, S);
+  frame(g, W, '分析結果の一覧', `${state.expName || ''}　${slashDate(state.expDate)}　${rows.length}人${rows.length > CAP ? `（先頭${CAP}人のみ）` : ''}`);
+  let x = 40, y = 122;
+  g.fillStyle = '#eceefe'; g.fillRect(40, y, W - 80, 44);
+  g.fillStyle = LIGHT.ink; g.font = font(17, 700);
+  COLS.forEach((col, i) => { g.textAlign = i === 0 ? 'left' : 'right'; g.fillText(col.label, i === 0 ? x + 12 : x + widthsPx[i] - 12, y + 29); x += widthsPx[i]; });
+  y += 44; g.font = font(17, 500);
+  shown.forEach(r => {
+    x = 40;
+    g.fillStyle = LIGHT.ink;
+    COLS.forEach((col, i) => {
+      g.textAlign = i === 0 ? 'left' : 'right';
+      let t = col.key === 'id' ? (anon ? `参加者${idx.get(r.id) + 1}` : r.id) : cellText(col, r[col.key]);
+      if (i === 0) t = fitText(g, t, widthsPx[0] - 20);
+      g.fillText(t, i === 0 ? x + 12 : x + widthsPx[i] - 12, y + 25); x += widthsPx[i];
+    });
+    g.strokeStyle = '#e2e5f3'; g.beginPath(); g.moveTo(40, y + rowH); g.lineTo(W - 40, y + rowH); g.stroke();
+    y += rowH;
+  });
+  g.textAlign = 'left';
+  footerNote(g, W, y + 30);
+  await saveFile('results_table.png', await canvasBlob(c));
+}
+
+</script>
+<script>
+/* --- js/table-export.js --- */
+/* =====================================================================
+ * table-export.js — CSV / Excel 出力、入力用テンプレート
+ * ===================================================================== */
+'use strict';
+function csvCell(v) {
+  if (v === null || v === undefined) return '';
+  let s = typeof v === 'number' ? String(v) : String(v);
+  if (typeof v === 'string' && /^[=+\-@\t\r]/.test(s)) s = "'" + s;
+  return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+const RESULT_HEAD = ['人物ID', '総合タイム', '総合ミス', '総合修正', '集中度', '速度', '正確性', '修正能力', '安定性'];   // 総合タイムは「秒」
+const resultRows = () => state.result.persons.map(p => [p.id, r4(p.T), r4(p.M), r4(p.C), r4(p.scores.ci), r4(p.scores.speed), r4(p.scores.accuracy), r4(p.scores.correction), p.scores.stability === null ? null : r4(p.scores.stability)]);
+const stamp = () => todayStr().replace(/-/g, '');
+async function exportCsv() {
+  const lines = [RESULT_HEAD, ...resultRows()].map(r => r.map(csvCell).join(','));
+  const blob = new Blob(['\uFEFF' + lines.join('\r\n') + '\r\n'], { type: 'text/csv;charset=utf-8' });
+  await saveFile(`concentration_results_${stamp()}.csv`, blob);
+}
+async function exportXlsx() {
+  const res = state.result, s = res.summary;
+  const wb = XLSX.utils.book_new();
+  const ws1 = XLSX.utils.aoa_to_sheet([[...RESULT_HEAD, '総合タイム(分:秒)'], ...resultRows().map((r, i) => [...r, Core.fmtTime(res.persons[i].T)])]);
+  ws1['!cols'] = RESULT_HEAD.concat(['x']).map((h, i) => ({ wch: i === 0 ? 14 : 12 }));
+  XLSX.utils.book_append_sheet(wb, ws1, '分析結果');
+  const head2 = ['人物ID', '枚', 'タイム(秒)', 'ミス', '修正', '速度のスコア', '正確性のスコア', '修正のスコア', '集中度', 'タイム(分:秒)'];
+  const rows2 = [];
+  res.persons.forEach(p => p.sheets.forEach(sh => rows2.push([p.id, sh.no, sh.t, sh.m, sh.c, r4(sh.sT), r4(sh.sM), r4(sh.sC), r4(sh.ci), Core.fmtTime(sh.t)])));
+  const ws2 = XLSX.utils.aoa_to_sheet([head2, ...rows2]); ws2['!cols'] = head2.map(() => ({ wch: 14 }));
+  XLSX.utils.book_append_sheet(wb, ws2, '1枚ごと');
+  const ws3 = XLSX.utils.aoa_to_sheet([['項目', '値'], ['参加人数', s.n], ['1人あたりの枚数', s.sheetCount], ['平均 総合タイム(秒)', r4(s.meanT)], ['平均 総合ミス数', r4(s.meanM)], ['平均 総合修正数', r4(s.meanC)],
+    ['集中度の平均', r4(s.ci.mean)], ['集中度の標準偏差', r4(s.ci.sd)], ['集中度の中央値', r4(s.ci.median)], ['集中度の最小値', r4(s.ci.min)], ['集中度の最大値', r4(s.ci.max)]]);
+  ws3['!cols'] = [{ wch: 22 }, { wch: 14 }];
+  XLSX.utils.book_append_sheet(wb, ws3, '全体統計');
+  const ws4 = XLSX.utils.aoa_to_sheet([['項目', '内容'],
+    ['履歴の名前', state.expName || ''], ['日付', slashDate(state.expDate)], ['元ファイル', state.fileName || ''],
+    ['集中度の式', 'CI = 100 + 15 × (0.40 S_T + 0.35 S_M + 0.15 S_C + 0.10 S_S)'],
+    ['S_T, S_M, S_C', '総合タイム・総合ミス・総合修正を全員で標準化した値にマイナスを付けたもの（少ないほど高評価）'],
+    ['S_S', '1枚ごとのタイムの変動係数（CV）を全員で標準化した値にマイナスを付けたもの'],
+    ['1枚ごとの集中度', '全員・全枚数で標準化し、安定性を除いた重みを合計1に直して合成'],
+    ['標準偏差の種類', res.ddof === 1 ? '標本標準偏差（人数−1で割る）' : '母標準偏差（人数で割る）'],
+    ['注意', 'この指標は本研究で設定した独自指標であり、集中力そのものを直接測定する尺度ではありません。']]);
+  ws4['!cols'] = [{ wch: 20 }, { wch: 90 }];
+  XLSX.utils.book_append_sheet(wb, ws4, '計算条件');
+  const out = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+  await saveFile(`concentration_results_${stamp()}.xlsx`, new Blob([out], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+}
+async function exportTemplate() {
+  const head = ['人物ID'];
+  for (let i = 1; i <= 5; i++) head.push(`${i}枚目タイム`, `${i}枚目ミス`, `${i}枚目修正`);
+  const ws = XLSX.utils.aoa_to_sheet([head]);
+  ws['!cols'] = head.map((h, i) => ({ wch: i === 0 ? 12 : 13 }));
+  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, '100マス計算');
+  const out = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+  await saveFile('template_100masu.xlsx', new Blob([out], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+}
+function guardExport(fn) {
+  return async () => {
+    try { await fn(); } catch (e) { console.error(e); toast('保存の準備でエラーが起きました：' + (e && e.message ? e.message : e), 'err'); }
+  };
+}
+
+</script>
+<script>
+/* --- js/render.js --- */
+/* =====================================================================
+ * render.js — 画面全体の描画（render）
+ * ===================================================================== */
+'use strict';
+/* ================= 全体の描画 ================= */
+function renderNav() {
+  document.querySelectorAll('.nav a').forEach(a => { const t = $(a.dataset.t); a.hidden = !t || t.hidden; });
+}
+function render() {
+  syncNameInputs();
+  renderErrors();
+  renderCheck();
+  const ok = !!(state.dataset && state.result && !state.result.errors.length);
+  $('person').hidden = !ok; $('overall').hidden = !ok; $('tableSec').hidden = !ok;
+  if (ok) { renderPersonSelect(); renderOverall(); renderTable(); renderPerson(); persistSession(); }
+  else { if (Charts.radar) { Charts.radar.destroy(); Charts.radar = null; } if (Charts.wave) { Charts.wave.destroy(); Charts.wave = null; } }
+  renderHistory(); renderNav();
+}
+
+</script>
+<script>
+/* --- js/main.js --- */
+/* =====================================================================
+ * main.js — 操作の登録（bind）と起動（boot）
+ * ===================================================================== */
+'use strict';
+/* ================= 操作の登録 ================= */
+function bind() {
+  const drop = $('drop');
+  $('file').addEventListener('change', e => { const fs = e.target.files; if (fs && fs.length) handleFiles(fs); e.target.value = ''; });
+  ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+  drop.addEventListener('drop', e => { const fs = e.dataTransfer && e.dataTransfer.files; if (fs && fs.length) handleFiles(fs); });
+  $('sheetSel').addEventListener('change', e => {
+    const s = state.sources[0];
+    if (!s || !s.wb) return;
+    s.sheetName = e.target.value; s.error = null;
+    try { parseSource(s); } catch (err) { s.error = { title: '読み込みに失敗しました', detail: String((err && err.message) || err), hint: '' }; }
+    state.excludeProblems = false; state.truncate = false; state.historyId = null;
+    rebuild();
+  });
+  $('checkBody').addEventListener('click', e => {
+    const rm = e.target.closest('[data-rm]');
+    if (rm) { state.sources = state.sources.filter(x => x.key !== rm.dataset.rm); state.excludeProblems = false; state.truncate = false; state.historyId = null; if (state.sources.length) autoExpDate(); rebuild(); return; }
+    if (e.target.closest('#clearFiles')) { state.sources = []; state.excludeProblems = false; state.truncate = false; state.historyId = null; rebuild(); }
+  });
+  $('tplBtn').addEventListener('click', guardExport(exportTemplate));
+
+  $('sdSel').value = state.settings.sd;
+  $('smoothChk').checked = !!state.settings.smooth;
+  $('meanChk').checked = !!state.settings.showMean;
+  $('sdSel').addEventListener('change', e => { state.settings.sd = e.target.value; Settings.save(); if (state.dataset) runAnalysis(); });
+  $('smoothChk').addEventListener('change', e => { state.settings.smooth = e.target.checked; Settings.save(); redrawCharts(); });
+  $('meanChk').addEventListener('change', e => { state.settings.showMean = e.target.checked; Settings.save(); redrawCharts(); });
+
+  $('personSel').addEventListener('change', e => selectPerson(e.target.value));
+  const step = d => { const ids = state.result.persons.map(p => p.id); const i = ids.indexOf(state.selectedId); selectPerson(ids[(i + d + ids.length) % ids.length]); };
+  $('prevP').addEventListener('click', () => step(-1));
+  $('nextP').addEventListener('click', () => step(1));
+  $('methodBtn').addEventListener('click', () => {
+    const m = $('method'), open = m.hidden;
+    m.hidden = !open;
+    $('methodBtn').setAttribute('aria-expanded', String(open));
+    $('methodBtn').textContent = open ? '計算方法を閉じる' : '計算方法を見る';
+    if (open) { m.innerHTML = methodHTML(cur()); m.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' }); }
+  });
+  $('dlRadar').addEventListener('click', guardExport(exportRadar));
+  $('dlWave').addEventListener('click', guardExport(exportWave));
+  $('dlOverview').addEventListener('click', guardExport(exportOverview));
+  $('dlZip').addEventListener('click', guardExport(exportIndividualZip));
+  $('dlOverall').addEventListener('click', guardExport(exportOverall));
+  $('nameChk').checked = !!state.settings.nameInOverall;
+  $('nameChk').addEventListener('change', e => { state.settings.nameInOverall = e.target.checked; Settings.save(); });
+  let rzT = null;
+  window.addEventListener('resize', () => { clearTimeout(rzT); rzT = setTimeout(renderOverallCharts, 150); });
+  $('dlCsv').addEventListener('click', guardExport(exportCsv));
+  $('dlXlsx').addEventListener('click', guardExport(exportXlsx));
+  $('dlTblImg').addEventListener('click', guardExport(exportTableImage));
+
+  // 表：検索・並び替え・行選択・列幅
+  $('q').addEventListener('input', e => { state.table.q = e.target.value; if (state.result) renderTableBody(); });
+  const tbl = $('dataTbl');
+  tbl.addEventListener('click', e => {
+    if (e.target.closest('.rz')) return;
+    const th = e.target.closest('th[data-key]');
+    if (th) {
+      const k = th.dataset.key;
+      if (state.table.key === k) state.table.dir *= -1; else { state.table.key = k; state.table.dir = k === 'id' ? 1 : -1; }
+      updateSortMarks(); renderTableBody(); return;
+    }
+    const tr = e.target.closest('tbody tr');
+    if (tr) selectPerson(tr.dataset.id);
+  });
+  tbl.addEventListener('pointerdown', e => {
+    const h = e.target.closest('.rz');
+    if (!h) return;
+    e.preventDefault();
+    const i = Number(h.dataset.i), startX = e.clientX, ws = widths(), start = ws[i];
+    h.classList.add('drag'); h.setPointerCapture(e.pointerId);
+    const move = ev => { const w = Math.max(60, Math.round(start + ev.clientX - startX)); const arr = widths(); arr[i] = w; state.settings.colWidths = arr; applyWidths(); };
+    const up = () => { h.classList.remove('drag'); h.removeEventListener('pointermove', move); h.removeEventListener('pointerup', up); h.removeEventListener('pointercancel', up); Settings.save(); };
+    h.addEventListener('pointermove', move); h.addEventListener('pointerup', up); h.addEventListener('pointercancel', up);
+  });
+
+  // 履歴
+  const onName = e => { setExpName(e.target.value); persistSession(); };
+  $('expName').addEventListener('input', onName);
+  $('expName2').addEventListener('input', onName);
+  $('expDate').addEventListener('change', e => { state.expDate = e.target.value; });
+  $('saveHist').addEventListener('click', saveHistory);
+  $('histList').addEventListener('click', async e => {
+    const o = e.target.closest('[data-open]'), d = e.target.closest('[data-del]');
+    if (o) openHistory(o.dataset.open);
+    if (d) {
+      if (await ask('この履歴を削除します。元に戻せません。', '削除する')) {
+        try { await Store.deleteHistory(d.dataset.del); } catch (err) { /* 失敗しても一覧を更新 */ }
+        if (state.historyId === d.dataset.del) state.historyId = null;
+        await refreshHistory(); toast('履歴を削除しました');
+      }
+    }
+  });
+  $('delHist').addEventListener('click', async () => {
+    if (await ask('保存した履歴をすべて削除します。読み込み中の分析は残ります。元に戻せません。', '履歴を削除')) {
+      try { await Store.clearHistory(); } catch (e) { /* 同上 */ }
+      state.historyId = null; await refreshHistory(); toast('履歴を削除しました');
+    }
+  });
+  $('delAll').addEventListener('click', async () => {
+    if (await ask('履歴・設定・最後に開いていた分析結果を、このブラウザからすべて削除します。元に戻せません。', 'すべて削除')) {
+      try { await Store.clearHistory(); await Store.clearKV(); } catch (e) { /* 同上 */ }
+      Settings.clear();
+      Object.assign(state, { sources: [], blocked: false, truncate: false, fileName: '', sheetName: '', excludeProblems: false, dataset: null, result: null, check: null, errors: [], selectedId: null, expName: '', expDate: '', historyId: null, history: [] });
+      state.table = { key: 'id', dir: 1, q: '' };
+      $('q').value = ''; $('sdSel').value = 'sample'; $('smoothChk').checked = true; $('meanChk').checked = true; $('sheetPick').hidden = true; $('restoreNote').innerHTML = '';
+      render(); toast('すべてのデータを削除しました');
+    }
+  });
+
+  // テーマの切り替わりに合わせてグラフを描き直す
+  if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { redrawCharts(); });
+  new MutationObserver(() => { redrawCharts(); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+}
+
+/* ================= 起動 ================= */
+async function boot() {
+  Settings.load();
+  bind();
+  setExpName(state.settings.expName || '');
+  if (!window.Chart || !window.XLSX) {
+    state.errors = [{ kind: 'err', title: '必要な部品を読み込めませんでした', detail: 'グラフ（Chart.js）またはExcel読み取り（SheetJS）の読み込みに失敗しました。', hint: 'ネットワーク接続を確認して、ページを再読み込みしてください。' }];
+    renderErrors(); return;
+  }
+  await Store.init();
+  await refreshHistory();
+  try {
+    const sess = await Store.getKV('session');
+    if (sess && sess.dataset && Array.isArray(sess.dataset.persons) && sess.dataset.persons.length) {
+      state.dataset = sess.dataset; state.check = sess.check || null; state.fileName = sess.fileName || ''; state.sheetName = sess.sheetName || '';
+      state.expDate = sess.expDate || todayStr();   // 履歴の名前は、入力のたびに設定へ即時保存しているので、ここでは上書きしない state.selectedId = sess.selectedId || null; state.historyId = sess.historyId || null;
+      state.excludeProblems = true;
+      $('restoreNote').innerHTML = '<div class="notice ok">前回の分析結果を復元しました。新しいファイルを読み込むと置き換わります。</div>';
+      runAnalysis();
+    }
+  } catch (e) { /* 復元できなければ何もしない */ }
+  renderNav();
+}
+boot();
+
+</script>
+</body>
+</html>
